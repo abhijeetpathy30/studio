@@ -2,6 +2,8 @@
 
 This is a Next.js application built with Firebase Studio that allows users to explore religious and philosophical texts with the help of AI.
 
+[![Deploy to Firebase](https://static.invertase.io/assets/deploy-to-firebase.svg)](https://console.firebase.google.com/project/_/hosting/sites)
+
 ## Features
 
 - **AI-Powered Verse Analysis**: Get in-depth analysis of spiritual verses.
