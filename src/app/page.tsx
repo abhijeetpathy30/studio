@@ -32,16 +32,18 @@ export default function Home() {
       const formData = new FormData();
       formData.append('query', query);
 
-      const resultState = await searchVerseAction(null, formData);
+      const { data, error } = await searchVerseAction(null, formData);
 
-      if (resultState.error) {
+      if (error) {
         toast({
           variant: 'destructive',
           title: 'Search Error',
-          description: resultState.error,
+          description: error,
         });
+        setResult(null);
+      } else {
+        setResult(data);
       }
-      setResult(resultState.data);
     });
   };
 

@@ -50,20 +50,21 @@ export const verses: Verse[] = [
 export const findVerseByQuery = (query: string): Verse | undefined => {
     const normalizedQuery = query.toLowerCase().trim();
 
-    // 1. Exact match on source
-    let verse = verses.find(v => v.source.toLowerCase() === normalizedQuery);
-    if (verse) return verse;
+    // Prioritize partial match on source first for cases like "Romans 12:21"
+    const partialSourceMatch = verses.find(v => 
+        v.source.toLowerCase().includes(normalizedQuery)
+    );
+    if (partialSourceMatch) return partialSourceMatch;
 
-    // 2. Partial match on source or text
-    const partialMatch = verses.find(v => 
-        v.source.toLowerCase().includes(normalizedQuery) ||
+    // Then, check for partial match in the text
+    const partialTextMatch = verses.find(v => 
         v.text.toLowerCase().includes(normalizedQuery)
     );
-    if (partialMatch) return partialMatch;
+    if (partialTextMatch) return partialTextMatch;
     
-    // 3. Match on theme
-    verse = verses.find(v => v.themes.some(theme => theme.toLowerCase() === normalizedQuery));
-    if (verse) return verse;
+    // Finally, match on theme if no source or text match is found
+    const themeMatch = verses.find(v => v.themes.some(theme => theme.toLowerCase() === normalizedQuery));
+    if (themeMatch) return themeMatch;
 
     // No match found
     return undefined;
