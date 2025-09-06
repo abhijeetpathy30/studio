@@ -47,16 +47,18 @@ const prompt = ai.definePrompt({
   name: 'getVersePrompt',
   input: {schema: GetVerseInputSchema},
   output: {schema: GetVerseOutputSchema},
-  prompt: `You are a scripture reference expert. Your task is to retrieve a specific verse from a religious or philosophical text based on the user's query.
+  prompt: `You are a scripture reference expert. Your task is to act as a reliable tool for retrieving a specific verse from a religious or philosophical text based on the user's query. Your primary goal is accuracy. Do not invent or hallucinate information.
 
 You can retrieve verses from the following texts:
 ${supportedScriptures}
 
-If the user query is a specific reference (e.g., "Romans 12:21", "Bhagavad Gita 2.47"), return the text for that verse.
-If the user query is a topic, find a relevant verse from one of the supported scriptures.
+If the user query is a specific reference (e.g., "Romans 12:21", "Bhagavad Gita 2.47"), use your knowledge to find the exact text for that verse.
+If the user query is a topic, find a single, highly relevant verse from one of the supported scriptures.
 
-If you can find the verse, populate the 'verse' object with the text, source, tradition, and a list of 1-3 relevant themes (like "Love", "Wisdom", "Peace").
-If you cannot find a matching verse for the query, return null for the 'verse' field.
+CRITICAL INSTRUCTIONS:
+1.  **ACCURACY FIRST**: Only return a verse if you can confidently and accurately identify it from the specified texts.
+2.  **NO HALLUCINATION**: If you are not certain about a verse, or if the user's query is ambiguous or not found in your knowledge base, you MUST return null for the 'verse' field. It is better to return nothing than to return incorrect information.
+3.  **FORMATTING**: If you find the verse, populate the 'verse' object with the exact text, the specific source (e.g., book, chapter, verse), the tradition it belongs to, and a list of 1-3 relevant themes (like "Love", "Wisdom", "Peace").
 
 Query: {{{query}}}
 `,
