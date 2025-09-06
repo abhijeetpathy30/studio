@@ -2,6 +2,8 @@ import type { Verse } from '@/lib/types';
 
 export const themes = ["Compassion", "Justice", "Love", "Wisdom", "Peace", "Humility"];
 
+// This data is now for theme exploration fallback and initial display.
+// The primary search functionality uses the getVerse AI flow.
 export const verses: Verse[] = [
     {
         id: "1",
@@ -44,103 +46,24 @@ export const verses: Verse[] = [
         source: "Tao Te Ching 64",
         tradition: "Taoism",
         themes: ["Wisdom", "Humility"]
-    },
-    {
-        id: '7',
-        text: 'He who knows others is wise; he who knows himself is enlightened.',
-        source: 'Tao Te Ching 33',
-        tradition: 'Taoism',
-        themes: ['Wisdom', 'Humility'],
-    },
-    {
-        id: '8',
-        text: 'The Lord is my shepherd; I shall not want.',
-        source: 'Psalm 23:1',
-        tradition: 'Christianity',
-        themes: ['Peace', 'Compassion'],
-    },
-    {
-        id: '9',
-        text: 'Indeed, with hardship will be ease.',
-        source: 'Quran 94:6',
-        tradition: 'Islam',
-        themes: ['Peace', 'Humility'],
-    },
-    {
-        id: '10',
-        text: 'Justice, justice shall you pursue.',
-        source: 'Deuteronomy 16:20',
-        tradition: 'Judaism',
-        themes: ['Justice'],
-    },
-    {
-        id: '11',
-        text: 'From the unreal lead me to the real, from darkness lead me to light, from death lead me to immortality.',
-        source: 'Brihadaranyaka Upanishad 1.3.28',
-        tradition: 'Hinduism',
-        themes: ['Wisdom'],
-    },
-    {
-        id: '12',
-        text: 'The mind is everything. What you think you become.',
-        source: 'Dhammapada',
-        tradition: 'Buddhism',
-        themes: ['Wisdom', 'Humility'],
-    },
-    {
-        id: '13',
-        text: 'By conquering yourself, you have conquered the world.',
-        source: 'Guru Granth Sahib',
-        tradition: 'Sikhism',
-        themes: ['Wisdom', 'Humility'],
-    },
-    {
-        id: '14',
-        text: 'The essence of the Way is detachment.',
-        source: 'Zhuangzi',
-        tradition: 'Taoism',
-        themes: ['Wisdom', 'Peace'],
-    },
-    {
-        id: '15',
-        text: 'The superior man is modest in his speech, but exceeds in his actions.',
-        source: 'Analects of Confucius',
-        tradition: 'Confucianism',
-        themes: ['Humility', 'Justice'],
-    },
-    {
-        id: '16',
-        text: 'The earth is but one country, and mankind its citizens.',
-        source: 'Gleanings from the Writings of Bahá’u’lláh',
-        tradition: 'Baháʼí Faith',
-        themes: ['Peace', 'Love', 'Compassion'],
     }
 ];
 
+// This function is now primarily a fallback for theme exploration.
 export const findVerseByQuery = (query: string): Verse | undefined => {
     const normalizedQuery = query.toLowerCase().trim();
-
-    // Prioritize exact or near-exact source match
-    const sourceMatch = verses.find(v => v.source.toLowerCase() === normalizedQuery);
-    if (sourceMatch) return sourceMatch;
     
-    // Then, check for partial match in the source
-    const partialSourceMatch = verses.find(v => 
-        v.source.toLowerCase().includes(normalizedQuery)
-    );
-    if (partialSourceMatch) return partialSourceMatch;
-
-    // Then, check for partial match in the text
-    const partialTextMatch = verses.find(v => 
-        v.text.toLowerCase().includes(normalizedQuery)
-    );
-    if (partialTextMatch) return partialTextMatch;
-    
-    // Finally, match on theme if no source or text match is found
+    // Match on theme for the theme explorer feature
     const themeMatch = verses.find(v => v.themes.some(theme => theme.toLowerCase() === normalizedQuery));
     if (themeMatch) return themeMatch;
 
-    // No match found
+    // Fallback to searching the small hardcoded list
+    const sourceMatch = verses.find(v => v.source.toLowerCase().includes(normalizedQuery));
+    if (sourceMatch) return sourceMatch;
+    
+    const textMatch = verses.find(v => v.text.toLowerCase().includes(normalizedQuery));
+    if (textMatch) return textMatch;
+
     return undefined;
 };
 

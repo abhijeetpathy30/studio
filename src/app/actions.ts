@@ -2,7 +2,7 @@
 
 import { analyzeVerseMeaning } from '@/ai/flows/analyze-verse-meaning';
 import { findCrossTraditionParallels } from '@/ai/flows/find-cross-tradition-parallels';
-import { findVerseByQuery } from '@/lib/data';
+import { getVerse } from '@/ai/flows/get-verse';
 import type { SearchResult } from '@/lib/types';
 import { z } from 'zod';
 
@@ -22,7 +22,7 @@ export async function searchVerseAction(prevState: any, formData: FormData): Pro
     const { query } = validatedFields.data;
 
     try {
-        const verse = findVerseByQuery(query);
+        const { verse } = await getVerse({ query });
 
         if (!verse) {
             return { data: null, error: 'No verse found matching your query. Please try another search or explore themes.' };
@@ -35,7 +35,7 @@ export async function searchVerseAction(prevState: any, formData: FormData): Pro
         ]);
         
         const result: SearchResult = {
-            verse,
+            verse: { ...verse, id: verse.source }, // Use source as a temporary ID
             analysis,
             parallels,
         };
