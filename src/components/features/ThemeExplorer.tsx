@@ -1,13 +1,13 @@
 import { themes } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, BrainCircuit, Bird, Heart, HeartHandshake, Scale, PersonStanding } from 'lucide-react';
+import { ArrowRight, BrainCircuit, BookOpen, Heart, HeartHandshake, Scale, PersonStanding } from 'lucide-react';
 
 const themeIcons: { [key: string]: React.ReactElement } = {
   Compassion: <HeartHandshake className="h-8 w-8 text-primary" />,
   Justice: <Scale className="h-8 w-8 text-primary" />,
   Love: <Heart className="h-8 w-8 text-primary" />,
   Wisdom: <BrainCircuit className="h-8 w-8 text-primary" />,
-  Peace: <Bird className="h-8 w-8 text-primary" />,
+  Peace: <BookOpen className="h-8 w-8 text-primary" />,
   Humility: <PersonStanding className="h-8 w-8 text-primary" />,
 };
 
