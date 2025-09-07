@@ -86,10 +86,10 @@ export default function Home() {
         <div className="mt-12">
           {isPending ? (
             <div className="space-y-8 animate-in fade-in-50">
-              <div className="max-w-md mx-auto text-center p-4 border-dashed border rounded-lg">
-                <Lightbulb className="h-6 w-6 mx-auto mb-2 text-yellow-400" />
-                <p className="text-sm text-muted-foreground font-medium">Did you know?</p>
-                <p className="text-sm text-muted-foreground">{randomFact}</p>
+              <div className="max-w-md mx-auto text-center p-4 border border-border/70 rounded-lg bg-card">
+                <Lightbulb className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
+                <p className="text-sm text-foreground/80 font-medium">Did you know?</p>
+               <p className="text-sm text-foreground/80">{randomFact}</p>
               </div>
               <Skeleton className="h-32 w-full rounded-lg" />
               <div className="grid md:grid-cols-2 gap-8">
