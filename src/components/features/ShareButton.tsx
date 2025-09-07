@@ -26,10 +26,10 @@ export function ShareButton({ result }: ShareButtonProps) {
   const handleNativeShare = () => {
     // The navigator.share API must be called immediately in the event handler
     // with no preceding await calls or complex synchronous logic.
-    // We construct the text inline to ensure the call is as direct as possible.
+    // The text is simplified to avoid complex string construction that can cause delays.
     navigator.share({
         title: `Insight from Rational Religion: ${result.verse.source}`,
-        text: `Check out this insight from Rational Religion:\n\nVerse: "${result.verse.text}" (${result.verse.source})\n\nAI Analysis: ${result.analysis.analysis.substring(0, 150)}...\n\nExplore more at: ${window.location.href}`,
+        text: `Check out this insight on Rational Religion.`,
         url: window.location.href,
     }).catch((error) => {
        // AbortError is thrown when the user cancels the share dialog.
