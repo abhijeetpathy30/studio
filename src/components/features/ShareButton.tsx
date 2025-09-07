@@ -17,35 +17,21 @@ export function ShareButton({ result }: ShareButtonProps) {
 
   useEffect(() => {
     // navigator.share is only available in secure contexts (https)
-    // and when the browser implements the API.
+    // and when the browser implements the Web Share API.
     if (navigator.share && window.isSecureContext) {
       setCanShare(true);
     }
   }, []);
 
-  const createShareText = () => {
-    return `
-Check out this insight from Rational Religion:
-
-Verse: "${result.verse.text}" (${result.verse.source})
-
-AI Analysis: ${result.analysis.analysis.substring(0, 150)}...
-
-A reflection on this verse: ${result.analysis.reflection.substring(0, 150)}...
-
-Explore more at: ${window.location.href}
-    `.trim();
-  };
-
   const handleNativeShare = () => {
-    const shareData = {
+    // The navigator.share API must be called immediately in the event handler
+    // with no preceding await calls or complex synchronous logic.
+    // We construct the text inline to ensure the call is as direct as possible.
+    navigator.share({
         title: `Insight from Rational Religion: ${result.verse.source}`,
-        text: createShareText(),
+        text: `Check out this insight from Rational Religion:\n\nVerse: "${result.verse.text}" (${result.verse.source})\n\nAI Analysis: ${result.analysis.analysis.substring(0, 150)}...\n\nExplore more at: ${window.location.href}`,
         url: window.location.href,
-    };
-    // navigator.share must be called directly in the event handler.
-    // It returns a promise, so we can use .catch() to handle errors.
-    navigator.share(shareData).catch((error) => {
+    }).catch((error) => {
        // AbortError is thrown when the user cancels the share dialog.
        // We can safely ignore it.
        if (error.name !== 'AbortError') {
@@ -58,10 +44,22 @@ Explore more at: ${window.location.href}
       }
     });
   };
-
+  
   const handleCopyToClipboard = async () => {
+    const shareText = `
+Check out this insight from Rational Religion:
+
+Verse: "${result.verse.text}" (${result.verse.source})
+
+AI Analysis: ${result.analysis.analysis.substring(0, 150)}...
+
+A reflection on this verse: ${result.analysis.reflection.substring(0, 150)}...
+
+Explore more at: ${window.location.href}
+    `.trim();
+
     try {
-      await navigator.clipboard.writeText(createShareText());
+      await navigator.clipboard.writeText(shareText);
       toast({
         title: "Copied to Clipboard",
         description: "The search results have been copied for you to share.",
