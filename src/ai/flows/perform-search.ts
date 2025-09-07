@@ -3,55 +3,16 @@
  * @fileOverview A comprehensive flow to search for a verse and get a full analysis in one call.
  *
  * - performSearch - Finds a verse, analyzes it, and finds parallels.
- * - PerformSearchInput - The input type for the performSearch function.
- * - PerformSearchOutput - The return type for the performSearch function.
  */
 
 import {ai} from '@/ai/genkit';
-import {VerseSchema} from '@/lib/types';
+import {
+  PerformSearchInput,
+  PerformSearchInputSchema,
+  PerformSearchOutput,
+  PerformSearchOutputSchema,
+} from '@/lib/types';
 import {z} from 'genkit';
-
-const PerformSearchInputSchema = z.object({
-  query: z
-    .string()
-    .describe('The topic or reference to search for (e.g., "love", "justice").'),
-  source: z
-    .string()
-    .optional()
-    .describe(
-      'A specific scripture to search within (e.g., "Bhagavad Gita"). If not provided, search all supported scriptures.'
-    ),
-});
-export type PerformSearchInput = z.infer<typeof PerformSearchInputSchema>;
-
-const PerformSearchOutputSchema = z.object({
-  verse: VerseSchema.nullable().describe(
-    'The retrieved verse, or null if not found.'
-  ),
-  analysis: z
-    .object({
-      analysis: z
-        .string()
-        .describe('The analysis of the verse meaning and context.'),
-      insights: z
-        .string()
-        .describe('Key insights and lessons extracted from the verse.'),
-      reflection: z
-        .string()
-        .describe(
-          "A non-religious, secular, or philosophical reflection on the verse's themes and ideas."
-        ),
-    })
-    .nullable(),
-  parallels: z
-    .object({
-      parallels: z
-        .array(z.string())
-        .describe('Similar verses or teachings from other traditions.'),
-    })
-    .nullable(),
-});
-export type PerformSearchOutput = z.infer<typeof PerformSearchOutputSchema>;
 
 const supportedScriptures = `
 - Christianity: Bible (Old & New Testament)
@@ -70,39 +31,68 @@ const supportedScriptures = `
 - Philosophy: Works of Plato, Aristotle, Confucius, Marcus Aurelius
 `;
 
-const prompt = ai.definePrompt({
-  name: 'performSearchPrompt',
-  input: {schema: PerformSearchInputSchema},
+const strictSearchPrompt = ai.definePrompt({
+  name: 'performStrictSearchPrompt',
+  input: {schema: z.object({query: z.string(), source: z.string()})},
   output: {schema: PerformSearchOutputSchema},
   prompt: `You are an expert theological and philosophical research assistant. Your goal is to perform a comprehensive analysis based on a user's query in a single pass.
 
-  Your knowledge base includes these texts:
-  ${supportedScriptures}
+    **CRITICAL REQUIREMENT:**
+    1.  **Verse Retrieval**: You **MUST** find the single best verse matching the user's topic "{{query}}" from the scripture "{{source}}".
+    2.  **Source Priority**: If you cannot find a relevant verse on that topic within "{{source}}", you **MUST** return \`null\` for the 'verse' field and all other fields. Do not look in other scriptures. Your only priority is to obey the user's selected source.
+    3.  If a verse is found, and only if a verse is found:
+        *   **Verse Analysis**: Provide a clear analysis of its meaning, a list of key insights, and a secular reflection on its themes.
+        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from *other* religious and philosophical traditions.
 
-  **CRITICAL INSTRUCTIONS:**
+    Accuracy is paramount. Do not invent verses. If you are uncertain or cannot find a match, return \`null\` for all fields.
 
-  1.  **Verse Retrieval**:
-      *   First, you **MUST** find the single best verse matching the user's query: "{{query}}".
-      *   **Source Priority**: If a specific scripture source is provided ({{#if source}}"{{source}}"{{else}}not provided{{/if}}), you **MUST** find the verse from that source. If no relevant verse is found in the specified source, you **MUST** return \`null\` for the 'verse' field and all other fields. Do not look in other scriptures.
-      *   **General Search**: If no source is provided, find the best match from any of the supported scriptures.
-      *   **Fuzzy Matching**: Use fuzzy matching for misspellings (e.g., "Bhagvad Geeta" -> "Bhagavad Gita", "forgivness" -> "forgiveness").
-      *   If no verse is found anywhere, return \`null\` for all fields.
-
-  2.  **Verse Analysis (if a verse is found)**:
-      *   Provide a clear analysis of its meaning within its original context.
-      *   List the key insights and lessons that can be drawn from it.
-      *   Write a non-religious, secular, or philosophical reflection on the verse's universal themes, accessible to an atheist.
-
-  3.  **Cross-Tradition Parallels (if a verse is found)**:
-      *   Find and list several similar verses or teachings from other religious and philosophical traditions that echo the theme of the found verse.
-
-  Perform all of these steps and return the complete output structure.
-  `,
+    **Topic**: {{{query}}}
+    **Scripture**: {{{source}}}
+    `,
 });
+
+const generalSearchPrompt = ai.definePrompt({
+  name: 'performGeneralSearchPrompt',
+  input: {schema: z.object({query: z.string()})},
+  output: {schema: PerformSearchOutputSchema},
+  prompt: `You are an expert theological and philosophical research assistant. Your goal is to perform a comprehensive analysis based on a user's query in a single pass.
+
+    Your knowledge base includes these texts:
+    ${supportedScriptures}
+
+    **INSTRUCTIONS:**
+    1.  **Verse Retrieval**: First, you **MUST** find the single best verse matching the user's query: "{{query}}". Find the best match from any of the supported scriptures.
+    2.  **Fuzzy Matching**: Use fuzzy matching for misspellings (e.g., "Bhagvad Geeta" -> "Bhagavad Gita", "forgivness" -> "forgiveness").
+    3.  If no verse is found anywhere, return \`null\` for all fields.
+    4.  If a verse is found, and only if a verse is found:
+        *   **Verse Analysis**: Provide a clear analysis of its meaning, a list of key insights, and a secular reflection on its themes.
+        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from other religious and philosophical traditions.
+
+    Perform all of these steps and return the complete output structure.
+    `,
+});
+
+const performSearchFlow = ai.defineFlow(
+  {
+    name: 'performSearchFlow',
+    inputSchema: PerformSearchInputSchema,
+    outputSchema: PerformSearchOutputSchema,
+  },
+  async input => {
+    if (input.source && input.source !== 'Default (All Scriptures)') {
+      const {output} = await strictSearchPrompt(
+        input as {query: string; source: string}
+      );
+      return output!;
+    }
+
+    const {output} = await generalSearchPrompt(input);
+    return output!;
+  }
+);
 
 export async function performSearch(
   input: PerformSearchInput
 ): Promise<PerformSearchOutput> {
-  const {output} = await prompt(input);
-  return output!;
+  return performSearchFlow(input);
 }

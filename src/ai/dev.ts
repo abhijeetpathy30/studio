@@ -3,5 +3,4 @@ config();
 
 import '@/ai/flows/analyze-verse-meaning.ts';
 import '@/ai/flows/find-cross-tradition-parallels.ts';
-import '@/ai/flows/get-verse.ts';
 import '@/ai/flows/perform-search.ts';

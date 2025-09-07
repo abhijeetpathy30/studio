@@ -25,7 +25,7 @@ export async function searchVerseAction(prevState: any, formData: FormData): Pro
     try {
         const searchResult = await performSearch({ query, source: source === supportedScriptures[0] ? undefined : source });
 
-        if (!searchResult.verse || !searchResult.analysis || !searchResult.parallels) {
+        if (!searchResult?.verse || !searchResult?.analysis || !searchResult?.parallels) {
             return { data: null, error: 'No verse found matching your query. Please try another search or explore themes.' };
         }
         
