@@ -13,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 export function SearchResults({ result, onClear }: { result: SearchResult; onClear: () => void; }) {
   const { verse, analysis, parallels } = result;
   const [canShare, setCanShare] = useState(false);
-  
   const { toast } = useToast();
 
   useEffect(() => {
@@ -53,6 +52,26 @@ Explore more at: ${window.location.href}
     }
   }, [result, toast]);
 
+  const handleShare = () => {
+    // This must be called directly in the event handler.
+    navigator.share({
+        title: `Insight from Rational Religion: ${result.verse.source}`,
+        text: `Check out this insight on Rational Religion.`,
+        url: window.location.href,
+    }).catch((error) => {
+        // AbortError is thrown when the user cancels the share dialog.
+        // We can safely ignore it.
+        if (error.name !== 'AbortError') {
+            console.error('Error sharing:', error);
+            toast({
+            variant: 'destructive',
+            title: "Sharing Failed",
+            description: "Could not share the results.",
+            });
+        }
+    });
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
@@ -61,24 +80,7 @@ Explore more at: ${window.location.href}
           New Search
         </Button>
         {canShare ? (
-            <Button variant="outline" size="sm" onClick={() => {
-                navigator.share({
-                  title: `Insight from Rational Religion: ${result.verse.source}`,
-                  text: `Check out this insight on Rational Religion.`,
-                  url: window.location.href,
-                }).catch((error) => {
-                    // AbortError is thrown when the user cancels the share dialog.
-                    // We can safely ignore it.
-                    if (error.name !== 'AbortError') {
-                        console.error('Error sharing:', error);
-                        toast({
-                        variant: 'destructive',
-                        title: "Sharing Failed",
-                        description: "Could not share the results.",
-                        });
-                    }
-                });
-            }}>
+            <Button variant="outline" size="sm" onClick={handleShare}>
                 <Share2 className="mr-2 h-4 w-4" />
                 Share
             </Button>
