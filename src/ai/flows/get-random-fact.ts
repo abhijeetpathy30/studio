@@ -29,9 +29,10 @@ const prompt = ai.definePrompt({
   - Abrahamic religions (Christianity, Judaism, Islam)
   - Dharmic religions (Hinduism, Buddhism, Jainism, Sikhism)
   - East Asian philosophies (Taoism, Confucianism, Shinto)
-  - Indigenous spiritual traditions
-  - Ancient philosophies (Stoicism, Platonism)
-  - Newer religious movements.
+  - Indigenous spiritual traditions from various cultures (e.g., Native American, African, Australian Aboriginal)
+  - Ancient philosophies (Stoicism, Platonism, Epicureanism)
+  - Zoroastrianism
+  - Newer religious movements or syncretic faiths.
 
   The fact should be concise and easily understandable for a general audience. Do not repeat facts you have given before if possible. Frame it as a standalone statement.`,
 });
