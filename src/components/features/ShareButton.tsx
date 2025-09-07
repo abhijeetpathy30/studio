@@ -16,6 +16,8 @@ export function ShareButton({ result }: ShareButtonProps) {
   const { toast } = useToast();
 
   useEffect(() => {
+    // navigator.share is only available in secure contexts (https)
+    // and when the browser implements the API.
     if (navigator.share && window.isSecureContext) {
       setCanShare(true);
     }
@@ -41,7 +43,11 @@ Explore more at: ${window.location.href}
         text: createShareText(),
         url: window.location.href,
     };
+    // navigator.share must be called directly in the event handler.
+    // It returns a promise, so we can use .catch() to handle errors.
     navigator.share(shareData).catch((error) => {
+       // AbortError is thrown when the user cancels the share dialog.
+       // We can safely ignore it.
        if (error.name !== 'AbortError') {
         console.error('Error sharing:', error);
         toast({
