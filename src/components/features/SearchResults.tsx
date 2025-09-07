@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { SearchResult } from '@/lib/types';
-import { ArrowLeft, BookText, Sparkles, Brain, Share2 } from 'lucide-react';
+import { ArrowLeft, BookText, Sparkles, Brain } from 'lucide-react';
 
 export function SearchResults({ result, onClear }: { result: SearchResult; onClear: () => void; }) {
   const { verse, analysis, parallels } = result;
@@ -64,9 +64,9 @@ export function SearchResults({ result, onClear }: { result: SearchResult; onCle
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center gap-3">
-            <Share2 className="h-6 w-6 text-primary" />
+            <BookText className="h-6 w-6 text-primary" />
             <CardTitle className="font-headline text-2xl">Cross-Tradition Parallels</CardTitle>
-          </Header>
+          </CardHeader>
           <CardContent>
             <ul className="space-y-4">
               {parallels.parallels.length > 0 ? parallels.parallels.map((parallel, index) => (
