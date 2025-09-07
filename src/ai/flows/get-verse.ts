@@ -14,7 +14,7 @@ export type { Verse } from '@/lib/types';
 
 
 const GetVerseInputSchema = z.object({
-  query: z.string().describe('The user\'s query to find a specific verse, (e.g., "John 3:16", "Quran 2:255", "Dhammapada 1").'),
+  query: z.string().describe('The user\'s query to find a specific verse, (e.g., "John 3:16", "Quran 2:255", "Dhammapada 1"). It may be prefixed with a scripture name like "Bhagavad Gita: love".'),
 });
 export type GetVerseInput = z.infer<typeof GetVerseInputSchema>;
 
@@ -54,12 +54,13 @@ You can retrieve verses from the following texts:
 ${supportedScriptures}
 
 INTELLIGENT SEARCH INSTRUCTIONS:
-1.  **FUZZY MATCHING**: The user may misspell names, topics, or references. Use intelligent "fuzzy matching" to find the correct verse. For example:
+1.  **PRIMARY SOURCE**: If the query contains a scripture name followed by a colon (e.g., "Bhagavad Gita: Justice"), you MUST find a verse related to the topic ("Justice") from within that specified scripture ("Bhagavad Gita"). The main result MUST come from the specified scripture.
+2.  **FUZZY MATCHING**: The user may misspell names, topics, or references. Use intelligent "fuzzy matching" to find the correct verse. For example:
     *   "Bhagvad Geeta" should map to "Bhagavad Gita".
     *   "forgivness" should map to "forgiveness".
     *   "Jon 3 16" should map to "John 3:16".
-2.  **TOPIC SEARCH**: If the user query is a topic (e.g., "love", "justice"), find a single, highly relevant verse from one of the supported scriptures.
-3.  **APPROXIMATE RESULTS**: If an exact match is not found, return the closest relevant passage.
+3.  **TOPIC SEARCH**: If the user query is a topic without a specified scripture (e.g., "love", "justice"), find a single, highly relevant verse from any of the supported scriptures.
+4.  **APPROXIMATE RESULTS**: If an exact match is not found, return the closest relevant passage.
 
 CRITICAL OUTPUT INSTRUCTIONS:
 1.  **ACCURACY FIRST**: Only return a verse if you can confidently and accurately identify it.
@@ -81,5 +82,3 @@ const getVerseFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    
