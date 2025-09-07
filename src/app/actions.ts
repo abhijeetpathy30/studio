@@ -2,6 +2,7 @@
 
 import { performSearch } from '@/ai/flows/perform-search';
 import { transcribeAudio } from '@/ai/flows/transcribe-audio';
+import { getRandomFact } from '@/ai/flows/get-random-fact';
 import type { SearchResult } from '@/lib/types';
 import { z } from 'zod';
 import { supportedScriptures } from '@/lib/data';
@@ -60,5 +61,16 @@ export async function transcribeAudioAction(audioDataUri: string): Promise<{text
     } catch (e) {
         console.error(e);
         return { text: null, error: 'An error occurred during transcription. Please try again.' };
+    }
+}
+
+export async function getRandomFactAction(): Promise<{ fact: string | null; error: string | null; }> {
+    try {
+        const { fact } = await getRandomFact();
+        return { fact, error: null };
+    } catch (e) {
+        console.error('Error fetching random fact:', e);
+        // Return a default fact or an error message.
+        return { fact: "The Golden Rule, 'Do unto others as you would have them do unto you,' appears in some form in nearly every major religion.", error: 'Could not fetch a new fact.' };
     }
 }

@@ -5,52 +5,20 @@ import { Header } from '@/components/layout/Header';
 import { VerseSearchForm, type VerseSearchFormRef } from '@/components/features/VerseSearchForm';
 import { SearchResults } from '@/components/features/SearchResults';
 import { ThemeExplorer } from '@/components/features/ThemeExplorer';
-import { searchVerseAction } from '@/app/actions';
+import { searchVerseAction, getRandomFactAction } from '@/app/actions';
 import type { SearchResult } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
-import { facts } from '@/lib/facts';
 import { Lightbulb } from 'lucide-react';
 
-// Helper function to shuffle an array
-function shuffle(array: string[]) {
-  let currentIndex = array.length,  randomIndex;
-
-  // While there remain elements to shuffle.
-  while (currentIndex > 0) {
-
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex], array[currentIndex]];
-  }
-
-  return array;
-}
 
 export default function Home() {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [shuffledFacts, setShuffledFacts] = useState<string[]>([]);
-  const [factIndex, setFactIndex] = useState(0);
+  const [randomFact, setRandomFact] = useState<string | null>(null);
   const searchFormRef = useRef<VerseSearchFormRef>(null);
   const { toast } = useToast();
-
-  // Shuffle facts only once when the component mounts
-  useEffect(() => {
-    setShuffledFacts(shuffle([...facts]));
-  }, []);
-
-  useEffect(() => {
-    if (isPending) {
-      // Move to the next fact, and loop back to the start if at the end
-      setFactIndex((prevIndex) => (prevIndex + 1) % shuffledFacts.length);
-    }
-  }, [isPending, shuffledFacts.length]);
 
   const handleSearch = (text: string, source: string) => {
     if (!text || text.length < 3) {
@@ -64,6 +32,14 @@ export default function Home() {
     
     startTransition(async () => {
       setResult(null);
+      setRandomFact(null);
+
+      // Fetch a random fact as soon as the search starts
+      getRandomFactAction().then(res => {
+        if(res.fact) {
+            setRandomFact(res.fact);
+        }
+      });
       
       const formData = new FormData();
       formData.append('query', text);
@@ -112,11 +88,13 @@ export default function Home() {
         <div className="mt-12">
           {isPending ? (
             <div className="space-y-8 animate-in fade-in-50">
-              <div className="max-w-md mx-auto text-center p-4 border border-border/70 rounded-lg bg-card">
-                <Lightbulb className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
-                <p className="text-sm text-foreground/80 font-medium">Did you know?</p>
-               <p className="text-sm text-foreground/80">{shuffledFacts[factIndex]}</p>
-              </div>
+              {randomFact && (
+                 <div className="max-w-md mx-auto text-center p-4 border border-border/70 rounded-lg bg-card animate-in fade-in-50">
+                  <Lightbulb className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
+                  <p className="text-sm text-foreground/80 font-medium">Did you know?</p>
+                 <p className="text-sm text-foreground/80">{randomFact}</p>
+                </div>
+              )}
               <Skeleton className="h-32 w-full rounded-lg" />
               <div className="grid md:grid-cols-2 gap-8">
                 <Skeleton className="h-80 w-full rounded-lg" />
