@@ -13,24 +13,16 @@ import { useToast } from '@/hooks/use-toast';
 export function SearchResults({ result, onClear }: { result: SearchResult; onClear: () => void; }) {
   const { verse, analysis, parallels } = result;
   const [canShare, setCanShare] = useState(false);
-  const [shareData, setShareData] = useState<{ title: string; text: string; url: string; } | null>(null);
   
   const { toast } = useToast();
 
   useEffect(() => {
     // navigator.share is only available in secure contexts (https),
-    // so this will be false in local http development.
+    // and on devices that support it.
     if (navigator.share && window.isSecureContext) {
       setCanShare(true);
     }
-
-    // Pre-construct the share data object when the result is available.
-    setShareData({
-        title: `Insight from Rational Religion: ${result.verse.source}`,
-        text: `Check out this insight on Rational Religion.`,
-        url: window.location.href,
-    });
-  }, [result]);
+  }, []);
 
   const handleCopyToClipboard = useCallback(async () => {
     const shareText = `
@@ -61,26 +53,6 @@ Explore more at: ${window.location.href}
     }
   }, [result, toast]);
 
-  const handleShare = useCallback(() => {
-      if (!shareData) {
-          console.error("Share data not ready");
-          return;
-      }
-      // This must be called directly in the event handler with pre-computed data.
-      navigator.share(shareData).catch((error) => {
-         // AbortError is thrown when the user cancels the share dialog.
-         // We can safely ignore it.
-         if (error.name !== 'AbortError') {
-          console.error('Error sharing:', error);
-          toast({
-            variant: 'destructive',
-            title: "Sharing Failed",
-            description: "Could not share the results.",
-          });
-        }
-      });
-  }, [shareData, toast]);
-
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
@@ -89,7 +61,24 @@ Explore more at: ${window.location.href}
           New Search
         </Button>
         {canShare ? (
-            <Button variant="outline" size="sm" onClick={handleShare}>
+            <Button variant="outline" size="sm" onClick={() => {
+                navigator.share({
+                  title: `Insight from Rational Religion: ${result.verse.source}`,
+                  text: `Check out this insight on Rational Religion.`,
+                  url: window.location.href,
+                }).catch((error) => {
+                    // AbortError is thrown when the user cancels the share dialog.
+                    // We can safely ignore it.
+                    if (error.name !== 'AbortError') {
+                        console.error('Error sharing:', error);
+                        toast({
+                        variant: 'destructive',
+                        title: "Sharing Failed",
+                        description: "Could not share the results.",
+                        });
+                    }
+                });
+            }}>
                 <Share2 className="mr-2 h-4 w-4" />
                 Share
             </Button>
@@ -149,7 +138,7 @@ Explore more at: ${window.location.href}
           <CardHeader className="flex flex-row items-center gap-3">
             <Share2 className="h-6 w-6 text-primary" />
             <CardTitle className="font-headline text-2xl">Cross-Tradition Parallels</CardTitle>
-          </CardHeader>
+          </Header>
           <CardContent>
             <ul className="space-y-4">
               {parallels.parallels.length > 0 ? parallels.parallels.map((parallel, index) => (

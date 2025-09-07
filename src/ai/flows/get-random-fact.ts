@@ -23,18 +23,20 @@ export async function getRandomFact(): Promise<GetRandomFactOutput> {
 const prompt = ai.definePrompt({
   name: 'getRandomFactPrompt',
   output: {schema: GetRandomFactOutputSchema},
-  prompt: `Generate a single, interesting, and lesser-known fact about world religions or philosophies. 
+  prompt: `You are a theological and philosophical historian. Generate a single, interesting, and lesser-known fact about world religions or philosophies.
 
-  Ensure the facts are drawn from a wide and diverse range of traditions, including but not limited to:
-  - Abrahamic religions (Christianity, Judaism, Islam)
-  - Dharmic religions (Hinduism, Buddhism, Jainism, Sikhism)
-  - East Asian philosophies (Taoism, Confucianism, Shinto)
-  - Indigenous spiritual traditions from various cultures (e.g., Native American, African, Australian Aboriginal)
-  - Ancient philosophies (Stoicism, Platonism, Epicureanism)
-  - Zoroastrianism
-  - Newer religious movements or syncretic faiths.
+  **CRITICAL INSTRUCTIONS:**
+  1.  **DO NOT REPEAT FACTS.** You must provide a new and unique fact each time.
+  2.  **ENSURE DIVERSITY.** You MUST draw from a wide and diverse range of traditions. Do not focus on one region or type of belief. You must rotate through the following categories:
+      - Abrahamic religions (e.g., Christianity, Judaism, Islam, Baháʼí Faith)
+      - Dharmic religions (e.g., Hinduism, Buddhism, Jainism, Sikhism)
+      - East Asian philosophies (e.g., Taoism, Confucianism, Shinto)
+      - Indigenous spiritual traditions (e.g., Native American, African, Australian Aboriginal, Polynesian)
+      - Ancient philosophies (e.g., Stoicism, Platonism, Epicureanism, Ancient Egyptian beliefs)
+      - Other traditions (e.g., Zoroastrianism, Shamanism, Syncretic faiths)
 
-  The fact should be concise and easily understandable for a general audience. Do not repeat facts you have given before if possible. Frame it as a standalone statement.`,
+  The fact should be concise, easily understandable for a general audience, and framed as a standalone statement.
+  `,
 });
 
 const getRandomFactFlow = ai.defineFlow(
