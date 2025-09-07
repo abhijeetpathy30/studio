@@ -19,7 +19,7 @@ export function ShareButton({ title, text, url }: ShareButtonProps) {
     // navigator.share is only available in secure contexts (HTTPS)
     // and when the user has granted permission.
     // It must be checked on the client side.
-    if (navigator.share) {
+    if (navigator.share && window.isSecureContext) {
       setCanShare(true);
     }
   }, []);
