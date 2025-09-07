@@ -37,6 +37,7 @@ const supportedScriptures = `
 - Baháʼí Faith: Writings of Bahá’u’lláh
 - Zoroastrianism: Avesta
 - Indigenous / Other: Popol Vuh (Maya)
+- Philosophy: Works of Plato, Aristotle, Confucius, Marcus Aurelius
 `;
 
 export async function getVerse(input: GetVerseInput): Promise<GetVerseOutput> {
@@ -52,12 +53,17 @@ const prompt = ai.definePrompt({
 You can retrieve verses from the following texts:
 ${supportedScriptures}
 
-If the user query is a specific reference (e.g., "Romans 12:21", "Bhagavad Gita 2.47"), use your knowledge to find the exact text for that verse.
-If the user query is a topic, find a single, highly relevant verse from one of the supported scriptures.
+INTELLIGENT SEARCH INSTRUCTIONS:
+1.  **FUZZY MATCHING**: The user may misspell names, topics, or references. Use intelligent "fuzzy matching" to find the correct verse. For example:
+    *   "Bhagvad Geeta" should map to "Bhagavad Gita".
+    *   "forgivness" should map to "forgiveness".
+    *   "Jon 3 16" should map to "John 3:16".
+2.  **TOPIC SEARCH**: If the user query is a topic (e.g., "love", "justice"), find a single, highly relevant verse from one of the supported scriptures.
+3.  **APPROXIMATE RESULTS**: If an exact match is not found, return the closest relevant passage.
 
-CRITICAL INSTRUCTIONS:
-1.  **ACCURACY FIRST**: Only return a verse if you can confidently and accurately identify it from the specified texts.
-2.  **NO HALLUCINATION**: If you are not certain about a verse, or if the user's query is ambiguous or not found in your knowledge base, you MUST return null for the 'verse' field. It is better to return nothing than to return incorrect information.
+CRITICAL OUTPUT INSTRUCTIONS:
+1.  **ACCURACY FIRST**: Only return a verse if you can confidently and accurately identify it.
+2.  **NO HALLUCINATION**: If you are not certain, or if the user's query is too ambiguous or not found in your knowledge base, you MUST return null for the 'verse' field. It is better to return nothing than to return incorrect information.
 3.  **FORMATTING**: If you find the verse, populate the 'verse' object with the exact text, the specific source (e.g., book, chapter, verse), the tradition it belongs to, and a list of 1-3 relevant themes (like "Love", "Wisdom", "Peace").
 
 Query: {{{query}}}
@@ -75,3 +81,5 @@ const getVerseFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    
