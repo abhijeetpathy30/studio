@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -9,21 +8,36 @@ import type { SearchResult } from '@/lib/types';
 import { ArrowLeft, BookText, Share2, Sparkles, Brain, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-
 export function SearchResults({ result, onClear }: { result: SearchResult; onClear: () => void; }) {
   const { verse, analysis, parallels } = result;
   const [canShare, setCanShare] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    // navigator.share is only available in secure contexts (https),
-    // and on devices that support it.
-    if (navigator.share && window.isSecureContext) {
+    if (typeof window !== 'undefined' && navigator.share) {
       setCanShare(true);
     }
   }, []);
 
-  const handleCopyToClipboard = useCallback(async () => {
+  const handleShare = useCallback(() => {
+    if (!navigator.share) return;
+    navigator.share({
+      title: `Insight from Rational Religion: ${result.verse.source}`,
+      text: `Check out this insight on Rational Religion.`,
+      url: window.location.href,
+    }).catch((error) => {
+      if (error.name !== 'AbortError') {
+        console.error('Error sharing:', error);
+        toast({
+          variant: 'destructive',
+          title: "Sharing Failed",
+          description: "Could not share the results.",
+        });
+      }
+    });
+  }, [result, toast]);
+
+  const handleCopyToClipboard = useCallback(() => {
     const shareText = `
 Check out this insight from Rational Religion:
 
@@ -36,41 +50,20 @@ A reflection on this verse: ${result.analysis.reflection.substring(0, 150)}...
 Explore more at: ${window.location.href}
     `.trim();
 
-    try {
-      await navigator.clipboard.writeText(shareText);
+    navigator.clipboard.writeText(shareText).then(() => {
       toast({
         title: "Copied to Clipboard",
         description: "The search results have been copied for you to share.",
       });
-    } catch (error) {
+    }).catch((error) => {
       console.error('Error copying to clipboard:', error);
       toast({
         variant: 'destructive',
         title: "Copy Failed",
         description: "Could not copy results to clipboard.",
       });
-    }
-  }, [result, toast]);
-
-  const handleShare = () => {
-    // This must be called directly in the event handler.
-    navigator.share({
-        title: `Insight from Rational Religion: ${result.verse.source}`,
-        text: `Check out this insight on Rational Religion.`,
-        url: window.location.href,
-    }).catch((error) => {
-        // AbortError is thrown when the user cancels the share dialog.
-        // We can safely ignore it.
-        if (error.name !== 'AbortError') {
-            console.error('Error sharing:', error);
-            toast({
-            variant: 'destructive',
-            title: "Sharing Failed",
-            description: "Could not share the results.",
-            });
-        }
     });
-  };
+  }, [result, toast]);
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
