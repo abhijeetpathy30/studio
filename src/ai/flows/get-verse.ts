@@ -14,7 +14,8 @@ export type { Verse } from '@/lib/types';
 
 
 const GetVerseInputSchema = z.object({
-  query: z.string().describe('The user\'s query to find a specific verse, (e.g., "John 3:16", "Quran 2:255", "Dhammapada 1"). It may be prefixed with a scripture name like "Bhagavad Gita: love".'),
+  query: z.string().describe('The user\'s topic to find a specific verse for (e.g., "love", "justice").'),
+  source: z.string().optional().describe('A specific scripture to search within (e.g., "Bhagavad Gita", "Quran").'),
 });
 export type GetVerseInput = z.infer<typeof GetVerseInputSchema>;
 
@@ -44,42 +45,58 @@ export async function getVerse(input: GetVerseInput): Promise<GetVerseOutput> {
   return getVerseFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'getVersePrompt',
-  input: {schema: GetVerseInputSchema},
-  output: {schema: GetVerseOutputSchema},
-  prompt: `You are a scripture retrieval expert. Your only job is to find a specific verse based on a user's query.
-
-Your knowledge base includes these texts:
-${supportedScriptures}
-
-**CRITICAL INSTRUCTIONS:**
-
-1.  **Check for a Primary Source**: Look at the user's query. It may contain a scripture name followed by a colon (e.g., "Bhagavad Gita: Compassion"). This is the **Primary Source**.
-
-2.  **Primary Source is an ABSOLUTE REQUIREMENT**:
-    *   If a **Primary Source** is specified, you **MUST** find a relevant verse *from that source only*.
-    *   If you cannot find a relevant verse on the topic within the specified **Primary Source**, you **MUST** return \`null\` for the 'verse' field.
-    *   **DO NOT** select a verse from a different scripture, even if it seems like a better match. Your priority is to obey the user's selected source.
-
-3.  **No Primary Source**: If the query is just a topic (e.g., "love") or a direct verse reference (e.g., "John 3:16"), find the best match from any of the supported scriptures.
-
-4.  **Fuzzy Matching**: Use fuzzy matching for misspellings (e.g., "Bhagvad Geeta" -> "Bhagavad Gita", "forgivness" -> "forgiveness").
-
-5.  **Accuracy is Paramount**: Do not invent verses. If you are uncertain or cannot find a match, return \`null\`. It is better to return nothing than to return incorrect information.
-
-**User Query**: {{{query}}}
-`,
-});
-
 const getVerseFlow = ai.defineFlow(
   {
     name: 'getVerseFlow',
     inputSchema: GetVerseInputSchema,
     outputSchema: GetVerseOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async ({ query, source }) => {
+    let promptToUse;
+    let promptInput: any = { query };
+
+    if (source && source !== "Default (All Scriptures)") {
+      // Use a strict prompt when a source is specified
+      promptToUse = ai.definePrompt({
+        name: 'getVerseStrictPrompt',
+        input: { schema: z.object({ query: z.string(), source: z.string() }) },
+        output: { schema: GetVerseOutputSchema },
+        prompt: `You are a scripture retrieval expert. Your ONLY job is to find a relevant verse about a topic from a SINGLE SPECIFIED scripture.
+
+**CRITICAL INSTRUCTIONS:**
+1. You **MUST** find a verse related to the topic "{{query}}" from the scripture "{{source}}".
+2. If you cannot find a relevant verse on the topic within "{{source}}", you **MUST** return \`null\` for the 'verse' field.
+3. **DO NOT** select a verse from a different scripture. Your priority is to obey the user's selected source.
+4. Accuracy is paramount. Do not invent verses. If you are uncertain or cannot find a match, return \`null\`.
+
+**Topic**: {{{query}}}
+**Scripture**: {{{source}}}
+`,
+      });
+      promptInput = { query, source };
+    } else {
+      // Use a general prompt when no source is specified
+      promptToUse = ai.definePrompt({
+        name: 'getVerseGeneralPrompt',
+        input: { schema: z.object({ query: z.string() }) },
+        output: { schema: GetVerseOutputSchema },
+        prompt: `You are a scripture retrieval expert. Your job is to find the best verse matching the user's query from a wide range of world scriptures.
+
+Your knowledge base includes these texts:
+${supportedScriptures}
+
+**Instructions**:
+1. Use fuzzy matching for misspellings (e.g., "Bhagvad Geeta" -> "Bhagavad Gita", "forgivness" -> "forgiveness").
+2. The query may be a direct verse reference (e.g., "John 3:16") or a topic (e.g., "love"). Find the best match.
+3. Accuracy is paramount. Do not invent verses. If you are uncertain or cannot find a match, return \`null\`.
+
+**User Query**: {{{query}}}
+`,
+      });
+      promptInput = { query };
+    }
+    
+    const { output } = await promptToUse(promptInput);
     return output!;
   }
 );

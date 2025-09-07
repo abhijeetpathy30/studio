@@ -5,24 +5,27 @@ import { findCrossTraditionParallels } from '@/ai/flows/find-cross-tradition-par
 import { getVerse } from '@/ai/flows/get-verse';
 import type { SearchResult } from '@/lib/types';
 import { z } from 'zod';
+import { supportedScriptures } from '@/lib/data';
 
 const SearchSchema = z.object({
     query: z.string().min(3, 'Search query must be at least 3 characters long.'),
+    source: z.string(),
 });
 
 export async function searchVerseAction(prevState: any, formData: FormData): Promise<{data: SearchResult | null, error: string | null}> {
     const validatedFields = SearchSchema.safeParse({
         query: formData.get('query'),
+        source: formData.get('source'),
     });
 
     if (!validatedFields.success) {
         return { data: null, error: validatedFields.error.flatten().fieldErrors.query?.[0] || 'Invalid input.' };
     }
 
-    const { query } = validatedFields.data;
+    const { query, source } = validatedFields.data;
 
     try {
-        const { verse } = await getVerse({ query });
+        const { verse } = await getVerse({ query, source: source === supportedScriptures[0] ? undefined : source });
 
         if (!verse) {
             return { data: null, error: 'No verse found matching your query. Please try another search or explore themes.' };

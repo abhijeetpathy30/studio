@@ -31,8 +31,8 @@ export default function Home() {
       setResult(null);
       
       const formData = new FormData();
-      const query = source !== supportedScriptures[0] ? `${source}: ${text}` : text;
-      formData.append('query', query);
+      formData.append('query', text);
+      formData.append('source', source);
 
       const { data, error } = await searchVerseAction(null, formData);
 
