@@ -11,31 +11,38 @@ import { useToast } from '@/hooks/use-toast';
 export function SearchResults({ result, onClear }: { result: SearchResult; onClear: () => void; }) {
   const { verse, analysis, parallels } = result;
   const [canShare, setCanShare] = useState(false);
+  const [shareData, setShareData] = useState<{ title: string; text: string; url: string; } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && navigator.share) {
-      setCanShare(true);
-    }
-  }, []);
+    const isShareSupported = typeof window !== 'undefined' && !!navigator.share;
+    setCanShare(isShareSupported);
 
-  const handleShare = useCallback(() => {
-    if (!navigator.share) return;
-    navigator.share({
-      title: `Insight from Rational Religion: ${result.verse.source}`,
-      text: `Check out this insight on Rational Religion.`,
-      url: window.location.href,
-    }).catch((error) => {
-      if (error.name !== 'AbortError') {
-        console.error('Error sharing:', error);
-        toast({
-          variant: 'destructive',
-          title: "Sharing Failed",
-          description: "Could not share the results.",
-        });
+    if (result) {
+      setShareData({
+        title: `Insight from Rational Religion: ${result.verse.source}`,
+        text: `A fascinating insight on "${result.verse.text}". Explore more on Rational Religion.`,
+        url: window.location.href,
+      });
+    }
+  }, [result]);
+
+  const handleShare = useCallback(async () => {
+    if (shareData && canShare) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        if (error instanceof Error && error.name !== 'AbortError') {
+          console.error('Error sharing:', error);
+          toast({
+            variant: 'destructive',
+            title: 'Sharing Failed',
+            description: 'Could not share the results at this time.',
+          });
+        }
       }
-    });
-  }, [result, toast]);
+    }
+  }, [shareData, canShare, toast]);
 
   const handleCopyToClipboard = useCallback(() => {
     const shareText = `
