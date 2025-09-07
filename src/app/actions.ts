@@ -1,8 +1,6 @@
 'use server';
 
-import { analyzeVerseMeaning } from '@/ai/flows/analyze-verse-meaning';
-import { findCrossTraditionParallels } from '@/ai/flows/find-cross-tradition-parallels';
-import { getVerse } from '@/ai/flows/get-verse';
+import { performSearch } from '@/ai/flows/perform-search';
 import type { SearchResult } from '@/lib/types';
 import { z } from 'zod';
 import { supportedScriptures } from '@/lib/data';
@@ -25,22 +23,16 @@ export async function searchVerseAction(prevState: any, formData: FormData): Pro
     const { query, source } = validatedFields.data;
 
     try {
-        const { verse } = await getVerse({ query, source: source === supportedScriptures[0] ? undefined : source });
+        const searchResult = await performSearch({ query, source: source === supportedScriptures[0] ? undefined : source });
 
-        if (!verse) {
+        if (!searchResult.verse || !searchResult.analysis || !searchResult.parallels) {
             return { data: null, error: 'No verse found matching your query. Please try another search or explore themes.' };
         }
-
-        // Run AI flows in parallel for performance
-        const [analysis, parallels] = await Promise.all([
-            analyzeVerseMeaning({ verse: verse.text }),
-            findCrossTraditionParallels({ verse: verse.text, tradition: verse.tradition })
-        ]);
         
         const result: SearchResult = {
-            verse: { ...verse, id: verse.source }, // Use source as a temporary ID
-            analysis,
-            parallels,
+            verse: { ...searchResult.verse, id: searchResult.verse.source }, // Use source as a temporary ID
+            analysis: searchResult.analysis,
+            parallels: searchResult.parallels,
         };
 
         return { data: result, error: null };
