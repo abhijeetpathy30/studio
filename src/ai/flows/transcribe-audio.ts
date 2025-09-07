@@ -29,7 +29,7 @@ const prompt = ai.definePrompt({
     name: 'transcribeAudioPrompt',
     input: { schema: TranscribeAudioInputSchema },
     output: { schema: TranscribeAudioOutputSchema },
-    prompt: `Transcribe the following audio.
+    prompt: `Transcribe the following audio. The user is speaking a search query for a religious or philosophical topic.
   
   Audio: {{media url=audioDataUri}}`,
 });
