@@ -1,76 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { SearchResult } from '@/lib/types';
-import { ArrowLeft, BookText, Share2, Sparkles, Brain, Copy } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, BookText, Sparkles, Brain, Share2 } from 'lucide-react';
 
 export function SearchResults({ result, onClear }: { result: SearchResult; onClear: () => void; }) {
   const { verse, analysis, parallels } = result;
-  const [canShare, setCanShare] = useState(false);
-  const [shareData, setShareData] = useState<{ title: string; text: string; url: string; } | null>(null);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const isShareSupported = typeof window !== 'undefined' && !!navigator.share;
-    setCanShare(isShareSupported);
-
-    if (result) {
-      setShareData({
-        title: `Insight from Rational Religion: ${result.verse.source}`,
-        text: `A fascinating insight on "${result.verse.text}". Explore more on Rational Religion.`,
-        url: window.location.href,
-      });
-    }
-  }, [result]);
-
-  const handleShare = useCallback(async () => {
-    if (shareData && canShare) {
-      try {
-        await navigator.share(shareData);
-      } catch (error) {
-        if (error instanceof Error && error.name !== 'AbortError') {
-          console.error('Error sharing:', error);
-          toast({
-            variant: 'destructive',
-            title: 'Sharing Failed',
-            description: 'Could not share the results at this time.',
-          });
-        }
-      }
-    }
-  }, [shareData, canShare, toast]);
-
-  const handleCopyToClipboard = useCallback(() => {
-    const shareText = `
-Check out this insight from Rational Religion:
-
-Verse: "${result.verse.text}" (${result.verse.source})
-
-AI Analysis: ${result.analysis.analysis.substring(0, 150)}...
-
-A reflection on this verse: ${result.analysis.reflection.substring(0, 150)}...
-
-Explore more at: ${window.location.href}
-    `.trim();
-
-    navigator.clipboard.writeText(shareText).then(() => {
-      toast({
-        title: "Copied to Clipboard",
-        description: "The search results have been copied for you to share.",
-      });
-    }).catch((error) => {
-      console.error('Error copying to clipboard:', error);
-      toast({
-        variant: 'destructive',
-        title: "Copy Failed",
-        description: "Could not copy results to clipboard.",
-      });
-    });
-  }, [result, toast]);
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
@@ -79,17 +16,6 @@ Explore more at: ${window.location.href}
           <ArrowLeft className="mr-2 h-4 w-4" />
           New Search
         </Button>
-        {canShare ? (
-            <Button variant="outline" size="sm" onClick={handleShare}>
-                <Share2 className="mr-2 h-4 w-4" />
-                Share
-            </Button>
-        ) : (
-            <Button variant="outline" size="sm" onClick={handleCopyToClipboard}>
-                <Copy className="mr-2 h-4 w-4" />
-                Copy to Clipboard
-            </Button>
-        )}
       </div>
 
       <Card className="shadow-lg border-primary/20">
