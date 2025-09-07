@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -13,15 +13,26 @@ import { useToast } from '@/hooks/use-toast';
 export function SearchResults({ result, onClear }: { result: SearchResult; onClear: () => void; }) {
   const { verse, analysis, parallels } = result;
   const [canShare, setCanShare] = useState(false);
+  const [shareData, setShareData] = useState<{ title: string; text: string; url: string; } | null>(null);
+  
   const { toast } = useToast();
 
   useEffect(() => {
+    // navigator.share is only available in secure contexts (https),
+    // so this will be false in local http development.
     if (navigator.share && window.isSecureContext) {
       setCanShare(true);
     }
-  }, []);
 
-  const handleCopyToClipboard = async () => {
+    // Pre-construct the share data object when the result is available.
+    setShareData({
+        title: `Insight from Rational Religion: ${result.verse.source}`,
+        text: `Check out this insight on Rational Religion.`,
+        url: window.location.href,
+    });
+  }, [result]);
+
+  const handleCopyToClipboard = useCallback(async () => {
     const shareText = `
 Check out this insight from Rational Religion:
 
@@ -48,15 +59,15 @@ Explore more at: ${window.location.href}
         description: "Could not copy results to clipboard.",
       });
     }
-  };
+  }, [result, toast]);
 
-  const handleShare = () => {
-      // This must be called directly in the event handler.
-      navigator.share({
-        title: `Insight from Rational Religion: ${result.verse.source}`,
-        text: `Check out this insight on Rational Religion.`,
-        url: window.location.href,
-      }).catch((error) => {
+  const handleShare = useCallback(() => {
+      if (!shareData) {
+          console.error("Share data not ready");
+          return;
+      }
+      // This must be called directly in the event handler with pre-computed data.
+      navigator.share(shareData).catch((error) => {
          // AbortError is thrown when the user cancels the share dialog.
          // We can safely ignore it.
          if (error.name !== 'AbortError') {
@@ -68,7 +79,7 @@ Explore more at: ${window.location.href}
           });
         }
       });
-  };
+  }, [shareData, toast]);
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
