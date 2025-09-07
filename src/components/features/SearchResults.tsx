@@ -3,16 +3,64 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { SearchResult } from '@/lib/types';
 import { ArrowLeft, BookText, Share2, Sparkles, Brain } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export function SearchResults({ result, onClear }: { result: SearchResult; onClear: () => void; }) {
   const { verse, analysis, parallels } = result;
+  const { toast } = useToast();
+
+  const handleShare = async () => {
+    const shareText = `
+Check out this insight from Rational Religion:
+
+Verse: "${verse.text}" (${verse.source})
+
+AI Analysis: ${analysis.analysis.substring(0, 150)}...
+
+A reflection on this verse: ${analysis.reflection.substring(0, 150)}...
+
+Explore more at: ${window.location.href}
+    `.trim();
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Insight from Rational Religion: ${verse.source}`,
+          text: shareText,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareText);
+        toast({
+            title: "Copied to Clipboard",
+            description: "The search results have been copied for you to share.",
+        });
+      } catch (error) {
+        console.error('Error copying to clipboard:', error);
+        toast({
+            variant: 'destructive',
+            title: "Copy Failed",
+            description: "Could not copy results to clipboard.",
+        });
+      }
+    }
+  };
+
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between">
         <Button variant="outline" size="sm" onClick={onClear}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           New Search
+        </Button>
+        <Button variant="outline" size="sm" onClick={handleShare}>
+          <Share2 className="mr-2 h-4 w-4" />
+          Share
         </Button>
       </div>
 
