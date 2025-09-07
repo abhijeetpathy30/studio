@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -9,7 +11,7 @@ export function SearchResults({ result, onClear }: { result: SearchResult; onCle
   const { verse, analysis, parallels } = result;
   const { toast } = useToast();
 
-  const handleShare = async () => {
+  const handleShare = () => {
     const shareText = `
 Check out this insight from Rational Religion:
 
@@ -23,33 +25,35 @@ Explore more at: ${window.location.href}
     `.trim();
 
     if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `Insight from Rational Religion: ${verse.source}`,
-          text: shareText,
-          url: window.location.href,
-        });
-      } catch (error) {
+      navigator.share({
+        title: `Insight from Rational Religion: ${verse.source}`,
+        text: shareText,
+        url: window.location.href,
+      }).catch((error) => {
         // Silently fail if the user cancels the share dialog
-        if ((error as Error).name !== 'AbortError') {
+        if (error.name !== 'AbortError') {
           console.error('Error sharing:', error);
+           toast({
+            variant: 'destructive',
+            title: "Sharing Failed",
+            description: "Could not share the results.",
+          });
         }
-      }
+      });
     } else {
-      try {
-        await navigator.clipboard.writeText(shareText);
+      navigator.clipboard.writeText(shareText).then(() => {
         toast({
             title: "Copied to Clipboard",
             description: "The search results have been copied for you to share.",
         });
-      } catch (error) {
+      }).catch((error) => {
         console.error('Error copying to clipboard:', error);
         toast({
             variant: 'destructive',
             title: "Copy Failed",
             description: "Could not copy results to clipboard.",
         });
-      }
+      });
     }
   };
 
