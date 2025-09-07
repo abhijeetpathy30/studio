@@ -1,6 +1,7 @@
 'use server';
 
 import { performSearch } from '@/ai/flows/perform-search';
+import { transcribeAudio } from '@/ai/flows/transcribe-audio';
 import type { SearchResult } from '@/lib/types';
 import { z } from 'zod';
 import { supportedScriptures } from '@/lib/data';
@@ -39,5 +40,25 @@ export async function searchVerseAction(prevState: any, formData: FormData): Pro
     } catch (e) {
         console.error(e);
         return { data: null, error: 'An error occurred while analyzing the verse. Please try again later.' };
+    }
+}
+
+const TranscribeSchema = z.object({
+    audioDataUri: z.string(),
+});
+
+export async function transcribeAudioAction(audioDataUri: string): Promise<{text: string | null, error: string | null}> {
+    const validatedFields = TranscribeSchema.safeParse({ audioDataUri });
+
+    if (!validatedFields.success) {
+        return { text: null, error: 'Invalid audio data.' };
+    }
+
+    try {
+        const { text } = await transcribeAudio({ audioDataUri: validatedFields.data.audioDataUri });
+        return { text, error: null };
+    } catch (e) {
+        console.error(e);
+        return { text: null, error: 'An error occurred during transcription. Please try again.' };
     }
 }

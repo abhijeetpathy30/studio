@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useImperativeHandle, forwardRef, useRef } from 'react';
+import { useState, useImperativeHandle, forwardRef, useRef, useTransition } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Loader2, Mic, MicOff } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supportedScriptures } from '@/lib/data';
+import { transcribeAudioAction } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
 
 interface VerseSearchFormProps {
   onSearch: (query: string, source: string) => void;
@@ -21,8 +23,10 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
   const [query, setQuery] = useState('');
   const [source, setSource] = useState(supportedScriptures[0]);
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, startTranscriptionTransition] = useTransition();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const { toast } = useToast();
 
   const handleMicClick = async () => {
     if (isRecording) {
@@ -31,7 +35,7 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
     } else {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mediaRecorder = new MediaRecorder(stream);
+        const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
         mediaRecorderRef.current = mediaRecorder;
         audioChunksRef.current = [];
 
@@ -41,11 +45,28 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
 
         mediaRecorder.onstop = async () => {
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-          // In the next step, we will send this blob to the server for transcription.
-          // For now, we'll just log it.
-          console.log('Recording stopped, audio blob:', audioBlob);
           
-          // Clean up the stream
+          startTranscriptionTransition(async () => {
+            const reader = new FileReader();
+            reader.readAsDataURL(audioBlob);
+            reader.onloadend = async () => {
+              const base64Audio = reader.result as string;
+              const { text, error } = await transcribeAudioAction(base64Audio);
+
+              if (error || !text) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Transcription Error',
+                    description: error || "Could not transcribe audio. Please try again.",
+                });
+                return;
+              }
+
+              setQuery(text);
+              onSearch(text, source);
+            };
+          });
+          
           stream.getTracks().forEach(track => track.stop());
         };
 
@@ -53,7 +74,11 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
         setIsRecording(true);
       } catch (err) {
         console.error('Error accessing microphone:', err);
-        alert('Could not access the microphone. Please ensure you have given permission.');
+        toast({
+            variant: 'destructive',
+            title: 'Microphone Error',
+            description: 'Could not access the microphone. Please ensure you have given permission in your browser settings.',
+        });
       }
     }
   };
@@ -70,6 +95,8 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
     },
     setQuery: (newQuery: string) => setQuery(newQuery),
   }));
+  
+  const isBusy = isLoading || isTranscribing;
 
   return (
     <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
@@ -80,13 +107,13 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search verse or topic (e.g., 'love', 'Romans 12:21')"
+            placeholder={isRecording ? "Recording... speak now" : isTranscribing ? "Transcribing..." : "Search verse or topic (e.g., 'love', 'Romans 12:21')"}
             className="w-full pl-11 h-12 text-base rounded-full"
-            disabled={isLoading}
+            disabled={isBusy}
           />
         </div>
         <div className="flex gap-2 w-full md:w-auto">
-            <Select onValueChange={setSource} value={source} disabled={isLoading}>
+            <Select onValueChange={setSource} value={source} disabled={isBusy}>
                 <SelectTrigger className="w-full md:w-[240px] h-12 rounded-full text-base">
                 <SelectValue placeholder="Select a source" />
                 </SelectTrigger>
@@ -102,15 +129,15 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
                 size="icon"
                 className="h-12 w-12 rounded-full"
                 onClick={handleMicClick}
-                disabled={isLoading}
+                disabled={isBusy}
                 aria-label={isRecording ? 'Stop recording' : 'Start recording'}
             >
-                {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                {isTranscribing ? <Loader2 className="h-5 w-5 animate-spin" /> : (isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />)}
             </Button>
             <Button
                 type="submit"
                 className="h-12 rounded-full px-6"
-                disabled={isLoading}
+                disabled={isBusy}
             >
                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Search'}
             </Button>
