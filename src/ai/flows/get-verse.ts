@@ -54,13 +54,13 @@ You can retrieve verses from the following texts:
 ${supportedScriptures}
 
 INTELLIGENT SEARCH INSTRUCTIONS:
-1.  **PRIMARY SOURCE**: If the query contains a scripture name followed by a colon (e.g., "Bhagavad Gita: Justice"), you MUST find a verse related to the topic ("Justice") from within that specified scripture ("Bhagavad Gita"). The main result MUST come from the specified scripture.
+1.  **ABSOLUTE REQUIREMENT - PRIMARY SOURCE**: If the query contains a scripture name followed by a colon (e.g., "Bhagavad Gita: Justice"), you MUST find a verse related to the topic ("Justice") from within that specified scripture ("Bhagavad Gita"). The main result MUST come from the specified scripture. If you cannot find a relevant verse within the specified scripture, you MUST return null for the 'verse' field. DO NOT select a verse from a different scripture.
 2.  **FUZZY MATCHING**: The user may misspell names, topics, or references. Use intelligent "fuzzy matching" to find the correct verse. For example:
     *   "Bhagvad Geeta" should map to "Bhagavad Gita".
     *   "forgivness" should map to "forgiveness".
     *   "Jon 3 16" should map to "John 3:16".
 3.  **TOPIC SEARCH**: If the user query is a topic without a specified scripture (e.g., "love", "justice"), find a single, highly relevant verse from any of the supported scriptures.
-4.  **APPROXIMATE RESULTS**: If an exact match is not found, return the closest relevant passage.
+4.  **APPROXIMATE RESULTS**: If an exact match is not found, return the closest relevant passage, but ALWAYS respect the primary source if one is specified.
 
 CRITICAL OUTPUT INSTRUCTIONS:
 1.  **ACCURACY FIRST**: Only return a verse if you can confidently and accurately identify it.
