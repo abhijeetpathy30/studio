@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -10,22 +11,6 @@ import { ShareButton } from './ShareButton';
 export function SearchResults({ result, onClear }: { result: SearchResult; onClear: () => void; }) {
   const { verse, analysis, parallels } = result;
 
-  const shareData = {
-    title: `Insight from Rational Religion: ${verse.source}`,
-    text: `
-Check out this insight from Rational Religion:
-
-Verse: "${verse.text}" (${verse.source})
-
-AI Analysis: ${analysis.analysis.substring(0, 150)}...
-
-A reflection on this verse: ${analysis.reflection.substring(0, 150)}...
-
-Explore more at: ${window.location.href}
-    `.trim(),
-    url: window.location.href,
-  };
-
   return (
     <div className="space-y-8 animate-in fade-in-50">
       <div className="flex items-center justify-between">
@@ -33,7 +18,7 @@ Explore more at: ${window.location.href}
           <ArrowLeft className="mr-2 h-4 w-4" />
           New Search
         </Button>
-        <ShareButton title={shareData.title} text={shareData.text} url={shareData.url} />
+        <ShareButton result={result} />
       </div>
 
       <Card className="shadow-lg border-primary/20">

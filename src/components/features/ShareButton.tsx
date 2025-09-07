@@ -1,34 +1,49 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Share2, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import type { SearchResult } from '@/lib/types';
 
 interface ShareButtonProps {
-  title: string;
-  text: string;
-  url: string;
+  result: SearchResult;
 }
 
-export function ShareButton({ title, text, url }: ShareButtonProps) {
+export function ShareButton({ result }: ShareButtonProps) {
   const [canShare, setCanShare] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    // navigator.share is only available in secure contexts (HTTPS)
-    // and when the user has granted permission.
-    // It must be checked on the client side.
     if (navigator.share && window.isSecureContext) {
       setCanShare(true);
     }
   }, []);
 
+  const createShareText = () => {
+    return `
+Check out this insight from Rational Religion:
+
+Verse: "${result.verse.text}" (${result.verse.source})
+
+AI Analysis: ${result.analysis.analysis.substring(0, 150)}...
+
+A reflection on this verse: ${result.analysis.reflection.substring(0, 150)}...
+
+Explore more at: ${window.location.href}
+    `.trim();
+  };
+
   const handleNativeShare = async () => {
+    const shareData = {
+        title: `Insight from Rational Religion: ${result.verse.source}`,
+        text: createShareText(),
+        url: window.location.href,
+    };
     try {
-      await navigator.share({ title, text, url });
+      await navigator.share(shareData);
     } catch (error) {
-      // Silently fail if the user cancels the share dialog (AbortError)
       if (error instanceof Error && error.name !== 'AbortError') {
         console.error('Error sharing:', error);
         toast({
@@ -42,7 +57,7 @@ export function ShareButton({ title, text, url }: ShareButtonProps) {
 
   const handleCopyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(createShareText());
       toast({
         title: "Copied to Clipboard",
         description: "The search results have been copied for you to share.",
