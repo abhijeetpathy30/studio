@@ -46,7 +46,7 @@ const generalSearchPrompt = ai.definePrompt({
     ${supportedScriptures.join('\n')}
 
     **INSTRUCTIONS:**
-    1.  **Verse Retrieval**: First, you **MUST** find the single best verse matching the user's query: "{{query}}". Find the best match from any of the supported scriptures.
+    1.  **Verse Retrieval**: First, you **MUST** find the single best verse matching the user's query: "{{query}}". To ensure impartiality, choose a verse from a **random** spiritual or philosophical tradition from the list above. Do not default to the same traditions repeatedly.
     2.  **Fuzzy Matching**: Use fuzzy matching for misspellings (e.g., "Bhagvad Geeta" -> "Bhagavad Gita", "forgivness" -> "forgiveness").
     3.  If no verse is found anywhere, return \`null\` for all fields.
     4.  If a verse is found, and only if a verse is found:

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useTransition } from 'react';
+import { useState, useRef, useTransition, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { VerseSearchForm, type VerseSearchFormRef } from '@/components/features/VerseSearchForm';
 import { SearchResults } from '@/components/features/SearchResults';
@@ -10,12 +10,21 @@ import type { SearchResult } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
+import { facts } from '@/lib/facts';
+import { Lightbulb } from 'lucide-react';
 
 export default function Home() {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [randomFact, setRandomFact] = useState('');
   const searchFormRef = useRef<VerseSearchFormRef>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (isPending) {
+      setRandomFact(facts[Math.floor(Math.random() * facts.length)]);
+    }
+  }, [isPending]);
 
   const handleSearch = (text: string, source: string) => {
     if (!text || text.length < 3) {
@@ -76,7 +85,12 @@ export default function Home() {
 
         <div className="mt-12">
           {isPending ? (
-            <div className="space-y-8">
+            <div className="space-y-8 animate-in fade-in-50">
+              <div className="max-w-md mx-auto text-center p-4 border-dashed border rounded-lg">
+                <Lightbulb className="h-6 w-6 mx-auto mb-2 text-yellow-400" />
+                <p className="text-sm text-muted-foreground font-medium">Did you know?</p>
+                <p className="text-sm text-muted-foreground">{randomFact}</p>
+              </div>
               <Skeleton className="h-32 w-full rounded-lg" />
               <div className="grid md:grid-cols-2 gap-8">
                 <Skeleton className="h-80 w-full rounded-lg" />
