@@ -1,5 +1,6 @@
 import { BookHeart } from 'lucide-react';
 import Link from 'next/link';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Header() {
   return (
@@ -9,6 +10,7 @@ export function Header() {
           <BookHeart className="h-7 w-7 text-primary" />
           <span>Rational Religion</span>
         </Link>
+        <ThemeToggle />
       </div>
     </header>
   );
