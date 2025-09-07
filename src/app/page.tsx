@@ -13,18 +13,44 @@ import { supportedScriptures } from '@/lib/data';
 import { facts } from '@/lib/facts';
 import { Lightbulb } from 'lucide-react';
 
+// Helper function to shuffle an array
+function shuffle(array: string[]) {
+  let currentIndex = array.length,  randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex > 0) {
+
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
+
 export default function Home() {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [randomFact, setRandomFact] = useState('');
+  const [shuffledFacts, setShuffledFacts] = useState<string[]>([]);
+  const [factIndex, setFactIndex] = useState(0);
   const searchFormRef = useRef<VerseSearchFormRef>(null);
   const { toast } = useToast();
 
+  // Shuffle facts only once when the component mounts
+  useEffect(() => {
+    setShuffledFacts(shuffle([...facts]));
+  }, []);
+
   useEffect(() => {
     if (isPending) {
-      setRandomFact(facts[Math.floor(Math.random() * facts.length)]);
+      // Move to the next fact, and loop back to the start if at the end
+      setFactIndex((prevIndex) => (prevIndex + 1) % shuffledFacts.length);
     }
-  }, [isPending]);
+  }, [isPending, shuffledFacts.length]);
 
   const handleSearch = (text: string, source: string) => {
     if (!text || text.length < 3) {
@@ -89,7 +115,7 @@ export default function Home() {
               <div className="max-w-md mx-auto text-center p-4 border border-border/70 rounded-lg bg-card">
                 <Lightbulb className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
                 <p className="text-sm text-foreground/80 font-medium">Did you know?</p>
-               <p className="text-sm text-foreground/80">{randomFact}</p>
+               <p className="text-sm text-foreground/80">{shuffledFacts[factIndex]}</p>
               </div>
               <Skeleton className="h-32 w-full rounded-lg" />
               <div className="grid md:grid-cols-2 gap-8">
