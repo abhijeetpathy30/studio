@@ -41,46 +41,30 @@ const supportedScriptures = `
 - Philosophy: Works of Plato, Aristotle, Confucius, Marcus Aurelius
 `;
 
-export async function getVerse(input: GetVerseInput): Promise<GetVerseOutput> {
-  return getVerseFlow(input);
-}
-
-const getVerseFlow = ai.defineFlow(
-  {
-    name: 'getVerseFlow',
-    inputSchema: GetVerseInputSchema,
-    outputSchema: GetVerseOutputSchema,
-  },
-  async ({ query, source }) => {
-    let promptToUse;
-    let promptInput: any = { query };
-
-    if (source && source !== "Default (All Scriptures)") {
-      // Use a strict prompt when a source is specified
-      promptToUse = ai.definePrompt({
-        name: 'getVerseStrictPrompt',
-        input: { schema: z.object({ query: z.string(), source: z.string() }) },
-        output: { schema: GetVerseOutputSchema },
-        prompt: `You are a scripture retrieval expert. Your ONLY job is to find a relevant verse about a topic from a SINGLE SPECIFIED scripture.
+// A strict prompt that FORCES the AI to use the specified source.
+const getVerseStrictPrompt = ai.definePrompt({
+  name: 'getVerseStrictPrompt',
+  input: { schema: z.object({ query: z.string(), source: z.string() }) },
+  output: { schema: GetVerseOutputSchema },
+  prompt: `You are a scripture retrieval expert. Your ONLY job is to find a relevant verse about a topic from a SINGLE SPECIFIED scripture.
 
 **CRITICAL INSTRUCTIONS:**
 1. You **MUST** find a verse related to the topic "{{query}}" from the scripture "{{source}}".
-2. If you cannot find a relevant verse on the topic within "{{source}}", you **MUST** return \`null\` for the 'verse' field.
+2. If you cannot find a relevant verse on that topic within "{{source}}", you **MUST** return \`null\` for the 'verse' field.
 3. **DO NOT** select a verse from a different scripture. Your priority is to obey the user's selected source.
 4. Accuracy is paramount. Do not invent verses. If you are uncertain or cannot find a match, return \`null\`.
 
 **Topic**: {{{query}}}
 **Scripture**: {{{source}}}
 `,
-      });
-      promptInput = { query, source };
-    } else {
-      // Use a general prompt when no source is specified
-      promptToUse = ai.definePrompt({
-        name: 'getVerseGeneralPrompt',
-        input: { schema: z.object({ query: z.string() }) },
-        output: { schema: GetVerseOutputSchema },
-        prompt: `You are a scripture retrieval expert. Your job is to find the best verse matching the user's query from a wide range of world scriptures.
+});
+
+// A general prompt for when no source is specified.
+const getVerseGeneralPrompt = ai.definePrompt({
+  name: 'getVerseGeneralPrompt',
+  input: { schema: z.object({ query: z.string() }) },
+  output: { schema: GetVerseOutputSchema },
+  prompt: `You are a scripture retrieval expert. Your job is to find the best verse matching the user's query from a wide range of world scriptures.
 
 Your knowledge base includes these texts:
 ${supportedScriptures}
@@ -92,11 +76,28 @@ ${supportedScriptures}
 
 **User Query**: {{{query}}}
 `,
-      });
-      promptInput = { query };
-    }
+});
+
+export async function getVerse(input: GetVerseInput): Promise<GetVerseOutput> {
+  return getVerseFlow(input);
+}
+
+const getVerseFlow = ai.defineFlow(
+  {
+    name: 'getVerseFlow',
+    inputSchema: GetVerseInputSchema,
+    outputSchema: GetVerseOutputSchema,
+  },
+  async ({ query, source }) => {
+    // If a specific source is provided (and it's not the default placeholder),
+    // use the strict, targeted prompt.
+    if (source && source !== "Default (All Scriptures)") {
+      const { output } = await getVerseStrictPrompt({ query, source });
+      return output!;
+    } 
     
-    const { output } = await promptToUse(promptInput);
+    // Otherwise, use the general prompt that searches across all scriptures.
+    const { output } = await getVerseGeneralPrompt({ query });
     return output!;
   }
 );
