@@ -2,6 +2,40 @@ import type { Verse } from '@/lib/types';
 
 export const themes = ["Compassion", "Justice", "Love", "Wisdom", "Peace", "Humility"];
 
+export const supportedScriptures = [
+    "Default (All Scriptures)",
+    "Bible (Old & New Testament)",
+    "Quran",
+    "Hadith (Sahih al-Bukhari, Sahih Muslim)",
+    "Tanakh (Hebrew Bible)",
+    "Talmud",
+    "Mishnah",
+    "Bhagavad Gita",
+    "Upanishads",
+    "Vedas",
+    "Ramayana",
+    "Mahabharata",
+    "Dhammapada",
+    "Pali Canon (Tipitaka)",
+    "Mahayana Sutras",
+    "Guru Granth Sahib",
+    "Agamas",
+    "Tattvartha Sutra",
+    "Tao Te Ching",
+    "Zhuangzi",
+    "Analects",
+    "Kojiki",
+    "Nihon Shoki",
+    "Writings of Bahá’u’lláh",
+    "Avesta",
+    "Popol Vuh (Maya)",
+    "Works of Plato",
+    "Works of Aristotle",
+    "Works of Confucius",
+    "Works of Marcus Aurelius",
+];
+
+
 // This data is now for theme exploration fallback and initial display.
 // The primary search functionality uses the getVerse AI flow.
 export const verses: Verse[] = [

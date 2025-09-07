@@ -9,6 +9,7 @@ import { searchVerseAction } from '@/app/actions';
 import type { SearchResult } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { supportedScriptures } from '@/lib/data';
 
 export default function Home() {
   const [result, setResult] = useState<SearchResult | null>(null);
@@ -16,8 +17,8 @@ export default function Home() {
   const searchFormRef = useRef<VerseSearchFormRef>(null);
   const { toast } = useToast();
 
-  const handleSearch = (query: string) => {
-    if (!query || query.length < 3) {
+  const handleSearch = (text: string, source: string) => {
+    if (!text || text.length < 3) {
        toast({
           variant: 'destructive',
           title: 'Invalid Search',
@@ -30,6 +31,7 @@ export default function Home() {
       setResult(null);
       
       const formData = new FormData();
+      const query = source !== supportedScriptures[0] ? `${source}: ${text}` : text;
       formData.append('query', query);
 
       const { data, error } = await searchVerseAction(null, formData);
@@ -54,7 +56,7 @@ export default function Home() {
 
   const handleThemeSelect = (theme: string) => {
     searchFormRef.current?.setQuery(theme);
-    handleSearch(theme);
+    handleSearch(theme, supportedScriptures[0]);
   };
 
   return (
