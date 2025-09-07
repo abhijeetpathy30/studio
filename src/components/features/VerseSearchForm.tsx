@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useImperativeHandle, forwardRef } from 'react';
+import { useState, useImperativeHandle, forwardRef, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, Mic, MicOff } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supportedScriptures } from '@/lib/data';
 
@@ -20,6 +20,43 @@ export interface VerseSearchFormRef {
 export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormProps>(({ onSearch, isLoading }, ref) => {
   const [query, setQuery] = useState('');
   const [source, setSource] = useState(supportedScriptures[0]);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+  const handleMicClick = async () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+        audioChunksRef.current = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          audioChunksRef.current.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          // In the next step, we will send this blob to the server for transcription.
+          // For now, we'll just log it.
+          console.log('Recording stopped, audio blob:', audioBlob);
+          
+          // Clean up the stream
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        setIsRecording(true);
+      } catch (err) {
+        console.error('Error accessing microphone:', err);
+        alert('Could not access the microphone. Please ensure you have given permission.');
+      }
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +96,17 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
                 ))}
                 </SelectContent>
             </Select>
+            <Button
+                type="button"
+                variant={isRecording ? 'destructive' : 'outline'}
+                size="icon"
+                className="h-12 w-12 rounded-full"
+                onClick={handleMicClick}
+                disabled={isLoading}
+                aria-label={isRecording ? 'Stop recording' : 'Start recording'}
+            >
+                {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+            </Button>
             <Button
                 type="submit"
                 className="h-12 rounded-full px-6"
