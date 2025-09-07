@@ -23,7 +23,17 @@ export async function getRandomFact(): Promise<GetRandomFactOutput> {
 const prompt = ai.definePrompt({
   name: 'getRandomFactPrompt',
   output: {schema: GetRandomFactOutputSchema},
-  prompt: `Generate a single, interesting, and lesser-known fact about world religions or philosophies. The fact should be concise and easily understandable for a general audience. Do not repeat facts you have given before if possible. Frame it as a standalone statement.`,
+  prompt: `Generate a single, interesting, and lesser-known fact about world religions or philosophies. 
+
+  Ensure the facts are drawn from a wide and diverse range of traditions, including but not limited to:
+  - Abrahamic religions (Christianity, Judaism, Islam)
+  - Dharmic religions (Hinduism, Buddhism, Jainism, Sikhism)
+  - East Asian philosophies (Taoism, Confucianism, Shinto)
+  - Indigenous spiritual traditions
+  - Ancient philosophies (Stoicism, Platonism)
+  - Newer religious movements.
+
+  The fact should be concise and easily understandable for a general audience. Do not repeat facts you have given before if possible. Frame it as a standalone statement.`,
 });
 
 const getRandomFactFlow = ai.defineFlow(
