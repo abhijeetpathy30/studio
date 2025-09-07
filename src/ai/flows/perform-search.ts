@@ -13,23 +13,8 @@ import {
   PerformSearchOutputSchema,
 } from '@/lib/types';
 import {z} from 'genkit';
+import { supportedScriptures } from '@/lib/data';
 
-const supportedScriptures = `
-- Christianity: Bible (Old & New Testament)
-- Islam: Quran, Hadith (Sahih al-Bukhari, Sahih Muslim)
-- Judaism: Tanakh (Hebrew Bible), Talmud, Mishnah
-- Hinduism: Bhagavad Gita, Upanishads, Vedas, Ramayana, Mahabharata
-- Buddhism: Dhammapada, Pali Canon (Tipitaka), Mahayana Sutras
-- Sikhism: Guru Granth Sahib
-- Jainism: Agamas, Tattvartha Sutra
-- Taoism: Tao Te Ching, Zhuangzi
-- Confucianism: Analects
-- Shinto: Kojiki, Nihon Shoki
-- Baháʼí Faith: Writings of Bahá’u’lláh
-- Zoroastrianism: Avesta
-- Indigenous / Other: Popol Vuh (Maya)
-- Philosophy: Works of Plato, Aristotle, Confucius, Marcus Aurelius
-`;
 
 const strictSearchPrompt = ai.definePrompt({
   name: 'performStrictSearchPrompt',
@@ -58,7 +43,7 @@ const generalSearchPrompt = ai.definePrompt({
   prompt: `You are an expert theological and philosophical research assistant. Your goal is to perform a comprehensive analysis based on a user's query in a single pass.
 
     Your knowledge base includes these texts:
-    ${supportedScriptures}
+    ${supportedScriptures.join('\n')}
 
     **INSTRUCTIONS:**
     1.  **Verse Retrieval**: First, you **MUST** find the single best verse matching the user's query: "{{query}}". Find the best match from any of the supported scriptures.
