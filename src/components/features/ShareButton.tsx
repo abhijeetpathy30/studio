@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Share2, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +14,7 @@ interface ShareButtonProps {
 export function ShareButton({ result }: ShareButtonProps) {
   const [canShare, setCanShare] = useState(false);
   const { toast } = useToast();
+  const shareButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     // navigator.share is only available in secure contexts (https)
@@ -22,7 +23,41 @@ export function ShareButton({ result }: ShareButtonProps) {
       setCanShare(true);
     }
   }, []);
-  
+
+  useEffect(() => {
+    const button = shareButtonRef.current;
+    if (!button || !canShare) return;
+
+    // Bypassing React's event system to ensure the call is a direct
+    // result of a user gesture. This is the most robust way to avoid
+    // "Permission Denied" errors.
+    const handleNativeShare = (event: MouseEvent) => {
+      event.preventDefault();
+      navigator.share({
+          title: `Insight from Rational Religion: ${result.verse.source}`,
+          text: `Check out this insight on Rational Religion.`,
+          url: window.location.href,
+      }).catch((error) => {
+         // AbortError is thrown when the user cancels the share dialog.
+         // We can safely ignore it.
+         if (error.name !== 'AbortError') {
+          console.error('Error sharing:', error);
+          toast({
+            variant: 'destructive',
+            title: "Sharing Failed",
+            description: "Could not share the results.",
+          });
+        }
+      });
+    };
+    
+    button.addEventListener('click', handleNativeShare);
+
+    return () => {
+      button.removeEventListener('click', handleNativeShare);
+    };
+  }, [canShare, result, toast]);
+
   const handleCopyToClipboard = async () => {
     const shareText = `
 Check out this insight from Rational Religion:
@@ -55,29 +90,9 @@ Explore more at: ${window.location.href}
   if (canShare) {
     return (
       <Button 
+        ref={shareButtonRef}
         variant="outline" 
         size="sm" 
-        onClick={() => {
-          // The navigator.share API must be called immediately in the event handler
-          // with no preceding await calls or complex synchronous logic.
-          // The text is simplified to avoid complex string construction that can cause delays.
-          navigator.share({
-              title: `Insight from Rational Religion: ${result.verse.source}`,
-              text: `Check out this insight on Rational Religion.`,
-              url: window.location.href,
-          }).catch((error) => {
-             // AbortError is thrown when the user cancels the share dialog.
-             // We can safely ignore it.
-             if (error.name !== 'AbortError') {
-              console.error('Error sharing:', error);
-              toast({
-                variant: 'destructive',
-                title: "Sharing Failed",
-                description: "Could not share the results.",
-              });
-            }
-          });
-        }}
       >
         <Share2 className="mr-2 h-4 w-4" />
         Share
