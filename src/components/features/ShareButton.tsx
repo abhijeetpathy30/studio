@@ -35,16 +35,14 @@ Explore more at: ${window.location.href}
     `.trim();
   };
 
-  const handleNativeShare = async () => {
+  const handleNativeShare = () => {
     const shareData = {
         title: `Insight from Rational Religion: ${result.verse.source}`,
         text: createShareText(),
         url: window.location.href,
     };
-    try {
-      await navigator.share(shareData);
-    } catch (error) {
-      if (error instanceof Error && error.name !== 'AbortError') {
+    navigator.share(shareData).catch((error) => {
+       if (error.name !== 'AbortError') {
         console.error('Error sharing:', error);
         toast({
           variant: 'destructive',
@@ -52,7 +50,7 @@ Explore more at: ${window.location.href}
           description: "Could not share the results.",
         });
       }
-    }
+    });
   };
 
   const handleCopyToClipboard = async () => {
