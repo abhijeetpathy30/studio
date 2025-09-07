@@ -8,7 +8,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { toWav } from '@/lib/audio';
 
 const TranscribeAudioInputSchema = z.object({
   audioDataUri: z
@@ -50,12 +49,5 @@ const transcribeAudioFlow = ai.defineFlow(
 export async function transcribeAudio(
   input: TranscribeAudioInput
 ): Promise<TranscribeAudioOutput> {
-  const audioBuffer = Buffer.from(
-    input.audioDataUri.substring(input.audioDataUri.indexOf(',') + 1),
-    'base64'
-  );
-
-  const wavDataUri = `data:audio/wav;base64,${await toWav(audioBuffer)}`;
-
-  return transcribeAudioFlow({ audioDataUri: wavDataUri });
+  return transcribeAudioFlow(input);
 }
