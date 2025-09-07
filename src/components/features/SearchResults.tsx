@@ -30,7 +30,10 @@ Explore more at: ${window.location.href}
           url: window.location.href,
         });
       } catch (error) {
-        console.error('Error sharing:', error);
+        // Silently fail if the user cancels the share dialog
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Error sharing:', error);
+        }
       }
     } else {
       try {
