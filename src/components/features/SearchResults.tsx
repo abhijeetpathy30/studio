@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { SearchResult } from '@/lib/types';
-import { ArrowLeft, BookText, Share2, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookText, Share2, Sparkles, Brain } from 'lucide-react';
 
 export function SearchResults({ result, onClear }: { result: SearchResult; onClear: () => void; }) {
   const { verse, analysis, parallels } = result;
@@ -46,6 +46,15 @@ export function SearchResults({ result, onClear }: { result: SearchResult; onCle
                 <AccordionTrigger className="text-lg font-semibold text-left hover:no-underline">Key Insights & Lessons</AccordionTrigger>
                 <AccordionContent className="text-base leading-relaxed pt-2 prose prose-sm max-w-none">
                   {analysis.insights}
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-3">
+                <AccordionTrigger className="text-lg font-semibold text-left hover:no-underline flex items-center gap-2">
+                    <Brain className="h-5 w-5" />
+                    Philosophical Reflection
+                </AccordionTrigger>
+                <AccordionContent className="text-base leading-relaxed pt-2 prose prose-sm max-w-none">
+                  {analysis.reflection}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

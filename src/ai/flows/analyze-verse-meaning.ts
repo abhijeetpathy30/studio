@@ -19,6 +19,7 @@ export type AnalyzeVerseMeaningInput = z.infer<typeof AnalyzeVerseMeaningInputSc
 const AnalyzeVerseMeaningOutputSchema = z.object({
   analysis: z.string().describe('The analysis of the verse meaning and context.'),
   insights: z.string().describe('Key insights and lessons extracted from the verse.'),
+  reflection: z.string().describe('A non-religious, secular, or philosophical reflection on the verse\'s themes and ideas.'),
 });
 export type AnalyzeVerseMeaningOutput = z.infer<typeof AnalyzeVerseMeaningOutputSchema>;
 
@@ -30,9 +31,12 @@ const prompt = ai.definePrompt({
   name: 'analyzeVerseMeaningPrompt',
   input: {schema: AnalyzeVerseMeaningInputSchema},
   output: {schema: AnalyzeVerseMeaningOutputSchema},
-  prompt: `You are a religious scholar skilled in analyzing religious texts.
+  prompt: `You are a religious and philosophical scholar skilled in analyzing texts from multiple perspectives.
 
-  Analyze the meaning and context of the following verse, extracting key insights and lessons.
+  For the following verse, provide three things:
+  1.  A clear analysis of its meaning within its original context.
+  2.  A list of key insights and lessons that can be drawn from it.
+  3.  A non-religious, secular, or philosophical reflection on the verse's universal themes and ideas. This reflection should be accessible to someone who does not follow any specific religion, including an atheist perspective.
 
   Verse: {{{verse}}}
   `,
