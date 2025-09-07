@@ -27,7 +27,7 @@ const strictSearchPrompt = ai.definePrompt({
     2.  **Source Priority**: If you cannot find a relevant verse on that topic within "{{source}}", you **MUST** return \`null\` for the 'verse' field and all other fields. Do not look in other scriptures. Your only priority is to obey the user's selected source.
     3.  If a verse is found, and only if a verse is found:
         *   **Verse Analysis**: Provide a clear analysis of its meaning, a list of key insights, and a secular reflection on its themes.
-        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from *other* religious and philosophical traditions.
+        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from *other* religious and philosophical traditions. Each parallel MUST be a single string containing both the quote and its full reference (e.g., "Do not be overcome by evil, but overcome evil with good. - Christian, Romans 12:21, New Testament").
 
     Accuracy is paramount. Do not invent verses. If you are uncertain or cannot find a match, return \`null\` for all fields.
 
@@ -51,7 +51,7 @@ const generalSearchPrompt = ai.definePrompt({
     3.  If no verse is found anywhere, return \`null\` for all fields.
     4.  If a verse is found, and only if a verse is found:
         *   **Verse Analysis**: Provide a clear analysis of its meaning, a list of key insights, and a secular reflection on its themes.
-        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from other religious and philosophical traditions.
+        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from other religious and philosophical traditions. Each parallel MUST be a single string containing both the quote and its full reference (e.g., "Do not be overcome by evil, but overcome evil with good. - Christian, Romans 12:21, New Testament").
 
     Perform all of these steps and return the complete output structure.
     `,
