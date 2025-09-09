@@ -87,13 +87,6 @@ export default function Home() {
           </p>
         </section>
 
-        <section className="max-w-4xl mx-auto mb-12 text-center bg-card border rounded-lg p-6 md:p-8 shadow-sm">
-            <h2 className="text-2xl md:text-3xl font-bold font-headline mb-4">What is The Wisdom Way?</h2>
-            <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
-              In a world that often highlights our differences, The Wisdom Way seeks to uncover the profound threads of wisdom that connect us all. Our mission is to foster a sense of unity across religions, cultures, believers, and non-believers by making the world’s philosophical knowledge easily accessible. Whether you're wrestling with a tough question or simply curious, this is a tool to spark insight and find common ground.
-            </p>
-        </section>
-
         <VerseSearchForm ref={searchFormRef} onSearch={handleSearch} isLoading={isPending} />
 
         <div className="mt-12">

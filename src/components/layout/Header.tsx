@@ -2,6 +2,7 @@ import { BookHeart } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import { ColorThemeToggle } from './ColorThemeToggle';
+import { Button } from '@/components/ui/button';
 
 export function Header() {
   return (
@@ -12,6 +13,9 @@ export function Header() {
           <span>The Wisdom Way</span>
         </Link>
         <div className='flex items-center gap-2'>
+           <Button asChild variant="ghost">
+              <Link href="/about">About</Link>
+           </Button>
           <ColorThemeToggle />
           <ThemeToggle />
         </div>
