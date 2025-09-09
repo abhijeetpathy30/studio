@@ -4,20 +4,15 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const hasProfile = request.cookies.has('rational-religion-profile-complete');
   const isOnboarding = request.nextUrl.pathname.startsWith('/onboarding');
-
-  // In a real app, we would also check if the user is authenticated.
-  // For this prototype, we'll rely on a cookie.
  
   if (isOnboarding) {
-    // If they finish onboarding, the cookie is set, redirect to home.
     if (hasProfile) {
         return NextResponse.redirect(new URL('/', request.url));
     }
-    // Otherwise, let them proceed to onboarding.
     return NextResponse.next();
   }
  
-  if (!hasProfile) {
+  if (!isOnboarding && !hasProfile) {
     return NextResponse.redirect(new URL('/onboarding', request.url));
   }
 
@@ -32,6 +27,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - onboarding (the onboarding page itself)
      */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],

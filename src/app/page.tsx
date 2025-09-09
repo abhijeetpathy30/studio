@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
 import { Lightbulb } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { cookies } from 'next/headers';
 
 
 export default function Home() {
@@ -26,7 +27,7 @@ export default function Home() {
   useEffect(() => {
     // This is a temporary solution to redirect to onboarding if the cookie is not set.
     // In a real app this would be handled by a proper auth flow.
-    if (document.cookie.indexOf('rational-religion-profile-complete') === -1) {
+    if (typeof window !== 'undefined' && document.cookie.indexOf('rational-religion-profile-complete=true') === -1) {
       router.push('/onboarding');
     }
   }, [router]);
