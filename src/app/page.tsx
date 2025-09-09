@@ -77,7 +77,7 @@ export default function Home() {
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <section className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4 tracking-tight">
-            Discover Universal Wisdom
+            The Wisdom Way
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             An AI-powered tool to explore spiritual and philosophical texts, uncover deep meanings, and find parallels across global traditions.
