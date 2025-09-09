@@ -3,29 +3,33 @@
 import { performSearch } from '@/ai/flows/perform-search';
 import { transcribeAudio } from '@/ai/flows/transcribe-audio';
 import { getRandomFact } from '@/ai/flows/get-random-fact';
-import type { SearchResult } from '@/lib/types';
+import type { SearchResult, SearchMode } from '@/lib/types';
 import { z } from 'zod';
 import { supportedScriptures } from '@/lib/data';
 
 const SearchSchema = z.object({
     query: z.string().min(3, 'Search query must be at least 3 characters long.'),
     source: z.string(),
+    mode: z.enum(['Religious', 'Spiritual', 'Non-Religious']),
 });
 
 export async function searchVerseAction(prevState: any, formData: FormData): Promise<{data: SearchResult | null, error: string | null}> {
     const validatedFields = SearchSchema.safeParse({
         query: formData.get('query'),
         source: formData.get('source'),
+        mode: formData.get('mode'),
     });
 
     if (!validatedFields.success) {
-        return { data: null, error: validatedFields.error.flatten().fieldErrors.query?.[0] || 'Invalid input.' };
+        const fieldErrors = validatedFields.error.flatten().fieldErrors;
+        const errorMessage = fieldErrors.query?.[0] || fieldErrors.mode?.[0] || 'Invalid input.';
+        return { data: null, error: errorMessage };
     }
 
-    const { query, source } = validatedFields.data;
+    const { query, source, mode } = validatedFields.data;
 
     try {
-        const searchResult = await performSearch({ query, source: source === supportedScriptures[0] ? undefined : source });
+        const searchResult = await performSearch({ query, source: source === supportedScriptures[0] ? undefined : source, mode });
 
         if (!searchResult?.verse || !searchResult?.analysis || !searchResult?.parallels) {
             return { data: null, error: 'No verse found matching your query. Please try another search or explore themes.' };

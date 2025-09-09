@@ -3,14 +3,17 @@
 import { useState, useImperativeHandle, forwardRef, useRef, useTransition } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Loader2, Mic, MicOff } from 'lucide-react';
+import { Search, Loader2, Mic, MicOff, Book, Sparkles, User } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supportedScriptures } from '@/lib/data';
 import { transcribeAudioAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import type { SearchMode } from '@/lib/types';
 
 interface VerseSearchFormProps {
-  onSearch: (query: string, source: string) => void;
+  onSearch: (query: string, source: string, mode: SearchMode) => void;
   isLoading: boolean;
 }
 
@@ -22,6 +25,7 @@ export interface VerseSearchFormRef {
 export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormProps>(({ onSearch, isLoading }, ref) => {
   const [query, setQuery] = useState('');
   const [source, setSource] = useState(supportedScriptures[0]);
+  const [mode, setMode] = useState<SearchMode>('Religious');
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, startTranscriptionTransition] = useTransition();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -63,7 +67,7 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
               }
 
               setQuery(text);
-              onSearch(text, source);
+              onSearch(text, source, mode);
             };
           });
           
@@ -85,13 +89,14 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(query, source);
+    onSearch(query, source, mode);
   };
   
   useImperativeHandle(ref, () => ({
     reset: () => {
       setQuery('');
       setSource(supportedScriptures[0]);
+      setMode('Religious');
     },
     setQuery: (newQuery: string) => setQuery(newQuery),
   }));
@@ -99,7 +104,7 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
   const isBusy = isLoading || isTranscribing;
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
+    <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-4">
       <div className="flex flex-col md:flex-row gap-2 w-full">
         <div className="relative flex-grow w-full">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -143,6 +148,34 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
             </Button>
         </div>
       </div>
+       <RadioGroup
+        value={mode}
+        onValueChange={(value) => setMode(value as SearchMode)}
+        className="flex items-center justify-center gap-2 md:gap-4 py-2"
+        disabled={isBusy}
+      >
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="Religious" id="mode-religious" />
+          <Label htmlFor="mode-religious" className="flex items-center gap-2 cursor-pointer text-base">
+            <Book className="h-5 w-5" />
+            Religious
+          </Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="Spiritual" id="mode-spiritual" />
+          <Label htmlFor="mode-spiritual" className="flex items-center gap-2 cursor-pointer text-base">
+            <Sparkles className="h-5 w-5" />
+            Spiritual
+          </Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="Non-Religious" id="mode-non-religious" />
+          <Label htmlFor="mode-non-religious" className="flex items-center gap-2 cursor-pointer text-base">
+            <User className="h-5 w-5" />
+            Non-Religious
+          </Label>
+        </div>
+      </RadioGroup>
     </form>
   );
 });

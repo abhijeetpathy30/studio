@@ -16,46 +16,63 @@ import {z} from 'genkit';
 import { supportedScriptures } from '@/lib/data';
 
 
-const strictSearchPrompt = ai.definePrompt({
-  name: 'performStrictSearchPrompt',
-  input: {schema: z.object({query: z.string(), source: z.string()})},
+const religiousPrompt = ai.definePrompt({
+  name: 'performReligiousSearchPrompt',
+  input: {schema: PerformSearchInputSchema},
   output: {schema: PerformSearchOutputSchema},
-  prompt: `You are an expert theological and philosophical research assistant. Your goal is to perform a comprehensive analysis based on a user's query in a single pass.
+  prompt: `You are an expert theological research assistant. Your goal is to perform a comprehensive analysis based on a user's query in a single pass, with a focus on **Religious** texts.
 
     **CRITICAL REQUIREMENT:**
-    1.  **Verse Retrieval**: You **MUST** find the single best verse matching the user's topic "{{query}}" from the scripture "{{source}}".
-    2.  **Source Priority**: If you cannot find a relevant verse on that topic within "{{source}}", you **MUST** return \`null\` for the 'verse' field and all other fields. Do not look in other scriptures. Your only priority is to obey the user's selected source.
+    1.  **Verse Retrieval**: You **MUST** find the single best verse matching the user's topic "{{query}}" from a sacred scripture or primary theological writing (e.g., Bible, Qur'an, Vedas, Talmud, Guru Granth Sahib).
+    2.  **Source Priority**: If a specific scripture is selected ("{{source}}"), you **MUST** prioritize it. If you cannot find a relevant verse on that topic within "{{source}}", you **MUST** return \`null\` for all fields. Do not look in other scriptures.
     3.  If a verse is found, and only if a verse is found:
-        *   **Verse Analysis**: Provide a clear analysis of its meaning, a list of key insights, and a secular reflection on its themes.
-        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from *other* religious and philosophical traditions. Each parallel MUST be a single string containing both the quote and its full reference (e.g., "Do not be overcome by evil, but overcome evil with good. - Christian, Romans 12:21, New Testament").
+        *   **Verse Analysis**: Provide a clear analysis of its meaning within its original religious context, a list of key insights, and a secular reflection.
+        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from *other* religious and philosophical traditions. Each parallel MUST be a single string containing both the quote and its full reference.
 
-    Accuracy is paramount. Do not invent verses. If you are uncertain or cannot find a match, return \`null\` for all fields.
-
+    Accuracy is paramount. Do not invent verses.
     **Topic**: {{{query}}}
-    **Scripture**: {{{source}}}
+    {{#if source}}**Scripture**: {{{source}}}{{/if}}
     `,
 });
 
-const generalSearchPrompt = ai.definePrompt({
-  name: 'performGeneralSearchPrompt',
-  input: {schema: z.object({query: z.string()})},
+const spiritualPrompt = ai.definePrompt({
+  name: 'performSpiritualSearchPrompt',
+  input: {schema: PerformSearchInputSchema},
   output: {schema: PerformSearchOutputSchema},
-  prompt: `You are an expert theological and philosophical research assistant. Your goal is to perform a comprehensive analysis based on a user's query in a single pass.
+  prompt: `You are an expert philosophical and spiritual research assistant. Your goal is to perform a comprehensive analysis based on a user's query in a single pass, with a focus on **Spiritual but not strictly religious** texts.
 
-    Your knowledge base includes these texts:
-    ${supportedScriptures.join('\n')}
+    **CRITICAL REQUIREMENT:**
+    1.  **Verse Retrieval**: You **MUST** find the single best quote/passage matching the user's topic "{{query}}" from mystical, meditative, or reflective texts (e.g., Rumi's poetry, Spinoza's Ethics, Buddhist sutras, Tao Te Ching, works of Kabir, Stoic philosophy). Avoid texts from institutionalized, dogmatic religion unless they have a strong mystical or universally spiritual component.
+    2.  **Source Priority**: If a specific scripture is selected ("{{source}}"), you **MUST** prioritize it if it aligns with a spiritual interpretation. If you cannot find a relevant passage, you **MUST** return \`null\` for all fields.
+    3.  If a passage is found, and only if a passage is found:
+        *   **Verse Analysis**: Provide a clear analysis of its meaning, a list of key insights, and a secular/philosophical reflection.
+        *   **Cross-Tradition Parallels**: Find and list several similar passages from other traditions (religious, spiritual, or philosophical). Each parallel MUST be a single string containing both the quote and its full reference.
 
-    **INSTRUCTIONS:**
-    1.  **Verse Retrieval**: First, you **MUST** find the single best verse matching the user's query: "{{query}}". To ensure impartiality, choose a verse from a **random** spiritual or philosophical tradition from the list above. Do not default to the same traditions repeatedly.
-    2.  **Fuzzy Matching**: Use fuzzy matching for misspellings (e.g., "Bhagvad Geeta" -> "Bhagavad Gita", "forgivness" -> "forgiveness").
-    3.  If no verse is found anywhere, return \`null\` for all fields.
-    4.  If a verse is found, and only if a verse is found:
-        *   **Verse Analysis**: Provide a clear analysis of its meaning, a list of key insights, and a secular reflection on its themes.
-        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from other religious and philosophical traditions. Each parallel MUST be a single string containing both the quote and its full reference (e.g., "Do not be overcome by evil, but overcome evil with good. - Christian, Romans 12:21, New Testament").
-
-    Perform all of these steps and return the complete output structure.
+    Accuracy is paramount. Do not invent verses.
+    **Topic**: {{{query}}}
+    {{#if source}}**Source**: {{{source}}}{{/if}}
     `,
 });
+
+const nonReligiousPrompt = ai.definePrompt({
+  name: 'performNonReligiousSearchPrompt',
+  input: {schema: PerformSearchInputSchema},
+  output: {schema: PerformSearchOutputSchema},
+  prompt: `You are an expert philosophical and secular research assistant. Your goal is to perform a comprehensive analysis based on a user's query in a single pass, with a focus on **Non-Religious** texts.
+
+    **CRITICAL REQUIREMENT:**
+    1.  **Verse Retrieval**: You **MUST** find the single best quote/passage matching the user's topic "{{query}}" from philosophical treatises, scientific works, or humanist writings (e.g., Aristotle, Plato, Bertrand Russell, Sartre, Camus, Kant). Do not use any religious or sacred scriptures.
+    2.  **Source Priority**: If a specific source is selected ("{{source}}"), you **MUST** prioritize it. If you cannot find a relevant passage, you **MUST** return \`null\` for all fields.
+    3.  If a passage is found, and only if a passage is found:
+        *   **Verse Analysis**: Provide a clear analysis of its meaning within its philosophical context, a list of key insights, and a reflection on its ideas.
+        *   **Cross-Tradition Parallels**: Find and list several similar passages from other *non-religious* philosophical traditions. Each parallel MUST be a single string containing both the quote and its full reference.
+
+    Accuracy is paramount. Do not invent passages.
+    **Topic**: {{{query}}}
+    {{#if source}}**Source**: {{{source}}}{{/if}}
+    `,
+});
+
 
 const performSearchFlow = ai.defineFlow(
   {
@@ -64,14 +81,26 @@ const performSearchFlow = ai.defineFlow(
     outputSchema: PerformSearchOutputSchema,
   },
   async input => {
-    if (input.source && input.source !== 'Default (All Scriptures)') {
-      const {output} = await strictSearchPrompt(
-        input as {query: string; source: string}
-      );
-      return output!;
+    let activePrompt;
+    switch (input.mode) {
+      case 'Spiritual':
+        activePrompt = spiritualPrompt;
+        break;
+      case 'Non-Religious':
+        activePrompt = nonReligiousPrompt;
+        break;
+      case 'Religious':
+      default:
+        activePrompt = religiousPrompt;
+        break;
+    }
+    
+    // Sanitize source for prompts
+    if (input.source === 'Default (All Scriptures)') {
+      input.source = undefined;
     }
 
-    const {output} = await generalSearchPrompt(input);
+    const {output} = await activePrompt(input);
     return output!;
   }
 );

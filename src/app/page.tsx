@@ -6,7 +6,7 @@ import { VerseSearchForm, type VerseSearchFormRef } from '@/components/features/
 import { SearchResults } from '@/components/features/SearchResults';
 import { ThemeExplorer } from '@/components/features/ThemeExplorer';
 import { searchVerseAction, getRandomFactAction } from '@/app/actions';
-import type { SearchResult } from '@/lib/types';
+import type { SearchResult, SearchMode } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
@@ -19,7 +19,7 @@ export default function Home() {
   const searchFormRef = useRef<VerseSearchFormRef>(null);
   const { toast } = useToast();
 
-  const handleSearch = (text: string, source: string) => {
+  const handleSearch = (text: string, source: string, mode: SearchMode) => {
     if (!text || text.length < 3) {
        toast({
           variant: 'destructive',
@@ -43,6 +43,7 @@ export default function Home() {
       const formData = new FormData();
       formData.append('query', text);
       formData.append('source', source);
+      formData.append('mode', mode);
 
       const { data, error } = await searchVerseAction(null, formData);
 
@@ -66,7 +67,8 @@ export default function Home() {
 
   const handleThemeSelect = (theme: string) => {
     searchFormRef.current?.setQuery(theme);
-    handleSearch(theme, supportedScriptures[0]);
+    // When exploring themes, default to 'Spiritual' mode for broader results
+    handleSearch(theme, supportedScriptures[0], 'Spiritual');
   };
 
   return (
