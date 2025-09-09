@@ -6,7 +6,6 @@ import { getRandomFact } from '@/ai/flows/get-random-fact';
 import type { SearchResult, SearchMode } from '@/lib/types';
 import { z } from 'zod';
 import { supportedScriptures } from '@/lib/data';
-import { Resend } from 'resend';
 
 const SearchSchema = z.object({
     query: z.string().min(3, 'Search query must be at least 3 characters long.'),
@@ -83,39 +82,4 @@ export async function getRandomFactAction(): Promise<{ fact: string | null; erro
         // Return a default fact or an error message.
         return { fact: "The Golden Rule, 'Do unto others as you would have them do unto you,' appears in some form in nearly every major religion.", error: 'Could not fetch a new fact.' };
     }
-}
-
-const FeedbackSchema = z.object({
-  feedback: z.string().min(10, 'Feedback must be at least 10 characters long.'),
-});
-
-export async function sendFeedbackAction(prevState: any, formData: FormData): Promise<{ success: boolean; message: string }> {
-  const validatedFields = FeedbackSchema.safeParse({
-    feedback: formData.get('feedback'),
-  });
-
-  if (!validatedFields.success) {
-    return { success: false, message: validatedFields.error.flatten().fieldErrors.feedback?.[0] || 'Invalid feedback.' };
-  }
-
-  const { feedback } = validatedFields.data;
-
-  if (!process.env.RESEND_API_KEY) {
-    console.error('Resend API key is not set. Please set the RESEND_API_KEY environment variable.');
-    return { success: false, message: 'The server is not configured to send emails. Please contact the administrator.' };
-  }
-
-  try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
-      from: 'WisdomWayFeedback@resend.dev', // This must be a verified domain in Resend, but resend.dev is allowed for testing.
-      to: 'abhijeetpathy30@gmail.com',
-      subject: 'New Feedback from The Wisdom Way',
-      html: `<p>You have received new feedback:</p><p><strong>${feedback}</strong></p>`,
-    });
-    return { success: true, message: 'Thank you for your feedback!' };
-  } catch (error) {
-    console.error('Error sending feedback email:', error);
-    return { success: false, message: 'An unexpected error occurred. Please try again later.' };
-  }
 }

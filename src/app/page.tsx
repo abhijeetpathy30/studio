@@ -1,64 +1,17 @@
 
 'use client';
 
-import { useState, useRef, useTransition, useEffect, useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useState, useRef, useTransition, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { VerseSearchForm, type VerseSearchFormRef } from '@/components/features/VerseSearchForm';
 import { SearchResults } from '@/components/features/SearchResults';
 import { ThemeExplorer } from '@/components/features/ThemeExplorer';
-import { searchVerseAction, getRandomFactAction, sendFeedbackAction } from '@/app/actions';
+import { searchVerseAction, getRandomFactAction } from '@/app/actions';
 import type { SearchResult, SearchMode } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
-import { Lightbulb, Linkedin, Send, Loader2 } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-
-function FeedbackForm() {
-  const [formState, formAction] = useActionState(sendFeedbackAction, { success: false, message: '' });
-  const [feedback, setFeedback] = useState('');
-  const { pending } = useFormStatus();
-
-  useEffect(() => {
-    if (formState.success) {
-      setFeedback(''); // Clear textarea on successful submission
-    }
-    if (formState.message && !formState.success) {
-        toast({
-            variant: 'destructive',
-            title: 'Feedback Error',
-            description: formState.message,
-        });
-    }
-  }, [formState]);
-    
-  const { toast } = useToast();
-
-  if (formState.success) {
-    return <p className="text-lg text-primary font-medium">{formState.message}</p>;
-  }
-
-  return (
-    <form action={formAction} className="space-y-4">
-      <Textarea
-        name="feedback"
-        placeholder="Share your thoughts, suggestions, or report an issue..."
-        required
-        className="bg-background/80"
-        rows={4}
-        value={feedback}
-        onChange={(e) => setFeedback(e.target.value)}
-        minLength={10}
-      />
-      <Button type="submit" className="w-full md:w-auto" disabled={pending}>
-        {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-        Send Feedback
-      </Button>
-    </form>
-  );
-}
+import { Lightbulb, Linkedin } from 'lucide-react';
 
 
 export default function Home() {
@@ -166,11 +119,6 @@ export default function Home() {
                 <Linkedin className="h-4 w-4" />
                 Connect on LinkedIn
             </a>
-
-            <div className="max-w-xl mx-auto">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Send Feedback</h3>
-                <FeedbackForm />
-            </div>
         </div>
       </footer>
     </div>
