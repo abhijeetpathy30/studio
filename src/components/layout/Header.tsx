@@ -1,11 +1,17 @@
+'use client';
 
 import { BookHeart, Heart } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
 import { ColorThemeToggle } from './ColorThemeToggle';
 import { Button } from '@/components/ui/button';
 
 export function Header() {
+  const pathname = usePathname();
+  const isAboutPage = pathname === '/about';
+  const heartHref = isAboutPage ? '/' : '/about';
+
   return (
     <header className="py-4 border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
       <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -14,8 +20,8 @@ export function Header() {
           <span>The Wisdom Way</span>
         </Link>
         <div className='flex items-center gap-2'>
-           <Button asChild variant="ghost" size="icon" aria-label="Home">
-              <Link href="/">
+           <Button asChild variant="ghost" size="icon" aria-label={isAboutPage ? "Back to Home" : "About the App"}>
+              <Link href={heartHref}>
                 <Heart className="h-5 w-5" />
               </Link>
            </Button>
