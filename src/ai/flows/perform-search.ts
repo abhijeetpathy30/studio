@@ -26,7 +26,7 @@ const religiousPrompt = ai.definePrompt({
     2.  **Source Priority**: If a specific scripture is selected ("{{source}}"), you **MUST** prioritize it. If you cannot find a relevant verse on that topic within "{{source}}", you **MUST** return \`null\` for all fields. Do not look in other scriptures.
     3.  If a verse is found, and only if a verse is found:
         *   **Verse Analysis**: Provide a clear analysis of its meaning within its original religious context, a list of key insights, and a secular reflection.
-        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from *other* religious and philosophical traditions. Each parallel MUST be a single string containing both the quote and its full reference.
+        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from *other religious* traditions only. Do not include spiritual or non-religious texts. Each parallel MUST be a single string containing both the quote and its full reference.
 
     Accuracy is paramount. Do not invent verses.
     **Topic**: {{{query}}}
@@ -45,7 +45,7 @@ const spiritualPrompt = ai.definePrompt({
     2.  **Source Priority**: If a specific scripture is selected ("{{source}}"), you **MUST** prioritize it. If you cannot find a relevant passage on that topic within "{{source}}", you **MUST** return \`null\` for all fields. Do not look in other scriptures.
     3.  If a passage is found, and only if a passage is found:
         *   **Verse Analysis**: Provide a clear analysis of its meaning, a list of key insights, and a secular/philosophical reflection.
-        *   **Cross-Tradition Parallels**: Find and list several similar passages from other traditions (religious, spiritual, or philosophical). Each parallel MUST be a single string containing both the quote and its full reference.
+        *   **Cross-Tradition Parallels**: Find and list several similar passages from *other spiritual* traditions only. Do not include strictly religious or non-religious texts. Each parallel MUST be a single string containing both the quote and its full reference.
 
     Accuracy is paramount. Do not invent verses.
     **Topic**: {{{query}}}
@@ -64,7 +64,7 @@ const nonReligiousPrompt = ai.definePrompt({
     2.  **Source Priority**: If a specific source is selected ("{{source}}"), you **MUST** prioritize it. If you cannot find a relevant passage on that topic within "{{source}}", you **MUST** return \`null\` for all fields. Do not look in other scriptures.
     3.  If a passage is found, and only if a passage is found:
         *   **Verse Analysis**: Provide a clear analysis of its meaning within its philosophical context, a list of key insights, and a reflection on its ideas.
-        *   **Cross-Tradition Parallels**: Find and list several similar passages from other *non-religious* philosophical traditions. Each parallel MUST be a single string containing both the quote and its full reference.
+        *   **Cross-Tradition Parallels**: Find and list several similar passages from other *non-religious* philosophical traditions only. Do not include religious or spiritual texts. Each parallel MUST be a single string containing both the quote and its full reference.
 
     Accuracy is paramount. Do not invent passages.
     **Topic**: {{{query}}}
