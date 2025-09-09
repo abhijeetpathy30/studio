@@ -4,9 +4,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import type { SearchResult } from '@/lib/types';
-import { ArrowLeft, BookText, Sparkles, Brain, Share2 } from 'lucide-react';
+import { ArrowLeft, BookText, Sparkles, Brain, Share2, Link as LinkIcon, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { SocialIcon } from 'react-social-icons';
 
 
 interface SearchResultsProps {
@@ -17,49 +19,57 @@ interface SearchResultsProps {
 export function SearchResults({ result, onClear }: SearchResultsProps) {
   const { verse, analysis, parallels } = result;
   const { toast } = useToast();
+  
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const shareText = `Check out this piece of wisdom I found on The Wisdom Way: "${verse.text}" - ${verse.source}`;
 
-  const handleShare = async () => {
-    const shareText = `"${verse.text}" - ${verse.source}`;
+  const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+  const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`;
+  const linkedinShareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(`Wisdom from ${verse.tradition}`)}&summary=${encodeURIComponent(shareText)}`;
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast({
+        title: 'Link Copied',
+        description: 'The link has been copied to your clipboard.',
+      });
+    } catch (error) {
+       toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Could not copy the link.',
+      });
+    }
+  };
+  
+  const handleNativeShare = async () => {
     const shareData = {
       title: 'A Moment of Wisdom',
-      text: shareText,
-      url: typeof window !== 'undefined' ? window.location.href : '',
+      text: `"${verse.text}" - ${verse.source}`,
+      url: shareUrl,
     };
 
     try {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(shareText);
-        toast({
-          title: 'Copied to Clipboard',
-          description: 'The verse has been copied for you to share.',
-        });
+        // This case should ideally not be hit if the button is not shown,
+        // but it's here as a fallback.
+        handleCopy();
       }
     } catch (error: any) {
-      // Don't show an error if the user cancels the share dialog.
-      if (error.name === 'AbortError') {
-        return;
-      }
-      
-      console.error('Error sharing:', error);
-      // Fallback for when sharing fails for other reasons
-      try {
-        await navigator.clipboard.writeText(shareText);
+      if (error.name !== 'AbortError') {
+        console.error('Error sharing:', error);
         toast({
-          title: 'Copied to Clipboard',
-          description: 'Sharing failed, so the verse has been copied for you.',
-        });
-      } catch (copyError) {
-        console.error('Error copying to clipboard:', copyError);
-        toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Could not share or copy the verse.',
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Could not share the verse.',
         });
       }
     }
   };
+
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
@@ -68,10 +78,38 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
           <ArrowLeft className="mr-2 h-4 w-4" />
           New Search
         </Button>
-         <Button variant="outline" size="sm" onClick={handleShare}>
-          <Share2 className="mr-2 h-4 w-4" />
-          Share
-        </Button>
+         <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+                {navigator.share && (
+                    <DropdownMenuItem onClick={handleNativeShare}>
+                        <Share2 className="mr-2 h-4 w-4" />
+                        <span>Share via...</span>
+                    </DropdownMenuItem>
+                )}
+                 <DropdownMenuItem onClick={() => window.open(twitterShareUrl, '_blank')}>
+                    <SocialIcon network="x" style={{ height: 20, width: 20 }} className="mr-2" />
+                    <span>Share on X</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.open(facebookShareUrl, '_blank')}>
+                    <SocialIcon network="facebook" style={{ height: 20, width: 20 }} className="mr-2" />
+                    <span>Share on Facebook</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.open(linkedinShareUrl, '_blank')}>
+                    <SocialIcon network="linkedin" style={{ height: 20, width: 20 }} className="mr-2" />
+                    <span>Share on LinkedIn</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleCopy}>
+                    <Copy className="mr-2 h-4 w-4" />
+                    <span>Copy Link</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <Card className="shadow-lg border-primary/20">
