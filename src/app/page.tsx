@@ -68,7 +68,7 @@ export default function Home() {
   const handleThemeSelect = (theme: string) => {
     searchFormRef.current?.setQuery(theme);
     // When exploring themes, default to 'Spiritual' mode for broader results
-    handleSearch(theme, supportedScriptures[0], 'Spiritual');
+    handleSearch(theme, supportedScriptures.Spiritual[0], 'Spiritual');
   };
 
   return (

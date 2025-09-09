@@ -27,9 +27,11 @@ export async function searchVerseAction(prevState: any, formData: FormData): Pro
     }
 
     const { query, source, mode } = validatedFields.data;
+    
+    const defaultSourceForMode = supportedScriptures[mode][0];
 
     try {
-        const searchResult = await performSearch({ query, source: source === supportedScriptures[0] ? undefined : source, mode });
+        const searchResult = await performSearch({ query, source: source === defaultSourceForMode ? undefined : source, mode });
 
         if (!searchResult?.verse || !searchResult?.analysis || !searchResult?.parallels) {
             return { data: null, error: 'No verse found matching your query. Please try another search or explore themes.' };

@@ -13,7 +13,6 @@ import {
   PerformSearchOutputSchema,
 } from '@/lib/types';
 import {z} from 'genkit';
-import { supportedScriptures } from '@/lib/data';
 
 
 const religiousPrompt = ai.definePrompt({
@@ -93,11 +92,6 @@ const performSearchFlow = ai.defineFlow(
       default:
         activePrompt = religiousPrompt;
         break;
-    }
-    
-    // Sanitize source for prompts
-    if (input.source === 'Default (All Scriptures)') {
-      input.source = undefined;
     }
 
     const {output} = await activePrompt(input);

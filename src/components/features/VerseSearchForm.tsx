@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useImperativeHandle, forwardRef, useRef, useTransition } from 'react';
+import { useState, useImperativeHandle, forwardRef, useRef, useTransition, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Loader2, Mic, MicOff, Book, Sparkles, User } from 'lucide-react';
@@ -24,13 +24,22 @@ export interface VerseSearchFormRef {
 
 export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormProps>(({ onSearch, isLoading }, ref) => {
   const [query, setQuery] = useState('');
-  const [source, setSource] = useState(supportedScriptures[0]);
   const [mode, setMode] = useState<SearchMode>('Religious');
+  const [currentScriptures, setCurrentScriptures] = useState(supportedScriptures.Religious);
+  const [source, setSource] = useState(currentScriptures[0]);
+  
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, startTranscriptionTransition] = useTransition();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const newScriptures = supportedScriptures[mode];
+    setCurrentScriptures(newScriptures);
+    setSource(newScriptures[0]);
+  }, [mode]);
+
 
   const handleMicClick = async () => {
     if (isRecording) {
@@ -95,8 +104,10 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
   useImperativeHandle(ref, () => ({
     reset: () => {
       setQuery('');
-      setSource(supportedScriptures[0]);
       setMode('Religious');
+      const defaultScriptures = supportedScriptures['Religious'];
+      setCurrentScriptures(defaultScriptures);
+      setSource(defaultScriptures[0]);
     },
     setQuery: (newQuery: string) => setQuery(newQuery),
   }));
@@ -123,7 +134,7 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
                 <SelectValue placeholder="Select a source" />
                 </SelectTrigger>
                 <SelectContent>
-                {supportedScriptures.map(scripture => (
+                {currentScriptures.map(scripture => (
                     <SelectItem key={scripture} value={scripture}>{scripture}</SelectItem>
                 ))}
                 </SelectContent>
