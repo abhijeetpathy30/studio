@@ -31,7 +31,10 @@ export async function searchVerseAction(prevState: any, formData: FormData): Pro
     const defaultSourceForMode = supportedScriptures[mode][0];
 
     try {
-        const searchResult = await performSearch({ query, source: source === defaultSourceForMode ? undefined : source, mode });
+        // If the selected source is the "Default" option for that mode, pass `undefined`,
+        // otherwise, pass the selected source.
+        const searchSource = source === defaultSourceForMode ? undefined : source;
+        const searchResult = await performSearch({ query, source: searchSource, mode });
 
         if (!searchResult?.verse || !searchResult?.analysis || !searchResult?.parallels) {
             return { data: null, error: 'No verse found matching your query. Please try another search or explore themes.' };
