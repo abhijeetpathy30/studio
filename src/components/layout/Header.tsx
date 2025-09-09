@@ -1,16 +1,27 @@
+
 'use client';
 
-import { BookHeart, Heart } from 'lucide-react';
+import { BookHeart, Heart, Bell } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
 import { ColorThemeToggle } from './ColorThemeToggle';
 import { Button } from '@/components/ui/button';
+import { useNotifications } from '@/hooks/use-notifications';
 
 export function Header() {
   const pathname = usePathname();
   const isAboutPage = pathname === '/about';
   const heartHref = isAboutPage ? '/' : '/about';
+  const { permission, requestPermission, toggleNotifications, notificationsEnabled } = useNotifications();
+
+  const handleReminderClick = () => {
+    if (permission === 'default') {
+      requestPermission();
+    } else {
+      toggleNotifications();
+    }
+  };
 
   return (
     <header className="py-4 border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
@@ -25,6 +36,11 @@ export function Header() {
                 <Heart className="h-5 w-5" />
               </Link>
            </Button>
+           {permission !== 'denied' && (
+             <Button variant={notificationsEnabled ? "default" : "ghost"} size="icon" onClick={handleReminderClick} aria-label="Toggle daily reminders">
+                <Bell className="h-5 w-5" />
+             </Button>
+           )}
           <ColorThemeToggle />
           <ThemeToggle />
         </div>
