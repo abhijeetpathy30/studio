@@ -1,24 +1,69 @@
 'use client';
 
 import { useState, useRef, useTransition, useEffect } from 'react';
+import { useFormState, useFormStatus } from 'react-dom';
 import { Header } from '@/components/layout/Header';
 import { VerseSearchForm, type VerseSearchFormRef } from '@/components/features/VerseSearchForm';
 import { SearchResults } from '@/components/features/SearchResults';
 import { ThemeExplorer } from '@/components/features/ThemeExplorer';
-import { searchVerseAction, getRandomFactAction } from '@/app/actions';
+import { searchVerseAction, getRandomFactAction, sendFeedbackAction } from '@/app/actions';
 import type { SearchResult, SearchMode } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
-import { Lightbulb, Linkedin, Send } from 'lucide-react';
+import { Lightbulb, Linkedin, Send, Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+
+function FeedbackForm() {
+  const [formState, formAction] = useFormState(sendFeedbackAction, { success: false, message: '' });
+  const [feedback, setFeedback] = useState('');
+  const { pending } = useFormStatus();
+
+  useEffect(() => {
+    if (formState.success) {
+      setFeedback(''); // Clear textarea on successful submission
+    }
+    if (formState.message && !formState.success) {
+        toast({
+            variant: 'destructive',
+            title: 'Feedback Error',
+            description: formState.message,
+        });
+    }
+  }, [formState]);
+    
+  const { toast } = useToast();
+
+  if (formState.success) {
+    return <p className="text-lg text-primary font-medium">{formState.message}</p>;
+  }
+
+  return (
+    <form action={formAction} className="space-y-4">
+      <Textarea
+        name="feedback"
+        placeholder="Share your thoughts, suggestions, or report an issue..."
+        required
+        className="bg-background/80"
+        rows={4}
+        value={feedback}
+        onChange={(e) => setFeedback(e.target.value)}
+        minLength={10}
+      />
+      <Button type="submit" className="w-full md:w-auto" disabled={pending}>
+        {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+        Send Feedback
+      </Button>
+    </form>
+  );
+}
+
 
 export default function Home() {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [isPending, startTransition] = useTransition();
   const [randomFact, setRandomFact] = useState<string | null>(null);
-  const [feedbackSent, setFeedbackSent] = useState(false);
   const searchFormRef = useRef<VerseSearchFormRef>(null);
   const { toast } = useToast();
 
@@ -74,13 +119,6 @@ export default function Home() {
     handleSearch(theme, supportedScriptures.Spiritual[0], 'Spiritual');
   };
   
-  const handleFeedbackSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically send the feedback to your backend or a service like Formspree
-    console.log('Feedback submitted:', new FormData(e.currentTarget as HTMLFormElement).get('feedback'));
-    setFeedbackSent(true);
-  };
-
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
@@ -130,23 +168,7 @@ export default function Home() {
 
             <div className="max-w-xl mx-auto">
                 <h3 className="text-lg font-semibold text-foreground mb-4">Send Feedback</h3>
-                {feedbackSent ? (
-                    <p className="text-lg text-primary font-medium">Thank you for your feedback!</p>
-                ) : (
-                    <form onSubmit={handleFeedbackSubmit} className="space-y-4">
-                        <Textarea 
-                            name="feedback"
-                            placeholder="Share your thoughts, suggestions, or report an issue..."
-                            required
-                            className="bg-background/80"
-                            rows={4}
-                        />
-                        <Button type="submit" className="w-full md:w-auto">
-                            <Send className="mr-2 h-4 w-4" />
-                            Send Feedback
-                        </Button>
-                    </form>
-                )}
+                <FeedbackForm />
             </div>
         </div>
       </footer>
