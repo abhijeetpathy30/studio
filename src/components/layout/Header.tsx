@@ -14,8 +14,8 @@ export function Header() {
           <span>The Wisdom Way</span>
         </Link>
         <div className='flex items-center gap-2'>
-           <Button asChild variant="ghost" size="icon" aria-label="About">
-              <Link href="/about">
+           <Button asChild variant="ghost" size="icon" aria-label="Home">
+              <Link href="/">
                 <Heart className="h-5 w-5" />
               </Link>
            </Button>
