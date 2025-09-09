@@ -14,14 +14,11 @@ export function Header() {
           <span>The Wisdom Way</span>
         </Link>
         <div className='flex items-center gap-2'>
-           <Button asChild variant="ghost" size="icon" aria-label="Home">
-              <Link href="/">
+           <Button asChild variant="ghost" size="icon" aria-label="About">
+              <Link href="/about">
                 <Heart className="h-5 w-5" />
               </Link>
            </Button>
-            <Button asChild variant="link" className="text-foreground">
-                <Link href="/about">About</Link>
-            </Button>
           <ColorThemeToggle />
           <ThemeToggle />
         </div>
