@@ -18,7 +18,7 @@ export function Header() {
   const handleReminderClick = () => {
     if (permission === 'default') {
       requestPermission();
-    } else {
+    } else if (permission === 'granted') {
       toggleNotifications();
     }
   };
