@@ -10,7 +10,7 @@ import type { SearchResult, SearchMode } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb, Mail, Send } from 'lucide-react';
 
 export default function Home() {
   const [result, setResult] = useState<SearchResult | null>(null);
@@ -109,8 +109,20 @@ export default function Home() {
           )}
         </div>
       </main>
-      <footer className="py-6 text-center text-sm text-muted-foreground border-t">
-        <p>Rational Religion. Powered by universal wisdom and modern technology.</p>
+      <footer className="py-8 text-center text-sm text-muted-foreground border-t bg-secondary/50">
+        <div className="container mx-auto px-4">
+            <p className="mb-4">Developed by Abhijeet Pathy</p>
+            <div className="flex items-center justify-center gap-6">
+                <a href="mailto:abhijeetpathy30@gmail.com?subject=Feedback for The Wisdom Way" className="flex items-center gap-2 hover:text-primary transition-colors">
+                    <Send className="h-4 w-4" />
+                    Send Feedback
+                </a>
+                <a href="mailto:abhijeetpathy30@gmail.com" className="flex items-center gap-2 hover:text-primary transition-colors">
+                    <Mail className="h-4 w-4" />
+                    Contact
+                </a>
+            </div>
+        </div>
       </footer>
     </div>
   );

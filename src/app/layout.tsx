@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
 
 export const metadata: Metadata = {
-  title: 'Rational Religion',
+  title: 'The Wisdom Way',
   description: 'Explore universal spiritual concepts across traditions.',
 };
 

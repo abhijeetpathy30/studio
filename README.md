@@ -1,4 +1,4 @@
-# Rational Religion
+# The Wisdom Way
 
 This is a Next.js application built with Firebase Studio that allows users to explore religious and philosophical texts with the help of AI.
 
@@ -10,5 +10,6 @@ This is a Next.js application built with Firebase Studio that allows users to ex
 - **Cross-Tradition Parallels**: Discover similar teachings across different faiths.
 - **Thematic Exploration**: Browse content organized by universal themes like compassion, love, and justice.
 - **Search**: Find specific verses or topics easily.
+- **Philosophical Modes**: Tailor your search to Religious, Spiritual, Non-Religious, or Universalist perspectives.
 
 To get started, run `npm run dev` and open your browser to the specified port.
