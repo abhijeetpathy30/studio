@@ -10,7 +10,7 @@ import type { SearchResult, SearchMode } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
-import { Lightbulb, Mail, Send } from 'lucide-react';
+import { Lightbulb, Linkedin, Send } from 'lucide-react';
 
 export default function Home() {
   const [result, setResult] = useState<SearchResult | null>(null);
@@ -118,9 +118,9 @@ export default function Home() {
                     <Send className="h-4 w-4" />
                     Send Feedback
                 </a>
-                <a href="mailto:abhijeetpathy30@gmail.com" className="flex items-center gap-2 hover:text-primary transition-colors">
-                    <Mail className="h-4 w-4" />
-                    Contact
+                <a href="https://www.linkedin.com/in/abhijeet-pathy-165b75118/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+                    <Linkedin className="h-4 w-4" />
+                    LinkedIn
                 </a>
             </div>
         </div>
