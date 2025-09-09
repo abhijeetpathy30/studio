@@ -7,18 +7,18 @@ export default function AboutPage() {
           <Card className="shadow-lg border-primary/20">
             <CardHeader>
               <CardTitle className="text-3xl md:text-4xl font-bold font-headline text-center tracking-tight">
-                About The Wisdom Way
+                My Story
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 text-lg text-foreground/80 leading-relaxed prose prose-lg max-w-none">
                 <p>
-                    Our mission is to foster a sense of unity across religions, cultures, believers, and non-believers by making the world’s philosophical knowledge easily accessible. In a world that often highlights our differences, The Wisdom Way seeks to uncover the profound threads of wisdom that connect us all. 
+                  I've always been fascinated by the big questions in life and the beautiful, diverse ways people have tried to answer them throughout history. It often seems like we focus on what divides us, but I was curious about the opposite. I wanted to find the common threads of wisdom that connect us all.
                 </p>
                 <p>
-                    Whether you are wrestling with a tough question, seeking a new perspective, or simply curious about what different traditions have to say about life's big questions, this tool is designed for you. It's a step to find clarity for anything that's on your mind.
+                  The Wisdom Way started as a personal project to help me find clarity for the things on my own mind. It was a tool for my own curiosity, a way to easily access profound philosophical and spiritual knowledge whenever I felt stuck or needed a new perspective.
                 </p>
                 <p>
-                    We believe that by exploring these shared insights, we can spark curiosity, encourage dialogue, and find more common ground.
+                  My hope is that this app can do the same for you. It’s here to foster a sense of unity and spark your own curiosity. It’s a simple step to help you find a piece of wisdom that speaks to you, right when you need it, and to see how people from all walks of life have wrestled with the very same questions you might have.
                 </p>
             </CardContent>
           </Card>
