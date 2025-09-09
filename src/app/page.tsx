@@ -11,11 +11,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
 import { Lightbulb, Linkedin, Send } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [isPending, startTransition] = useTransition();
   const [randomFact, setRandomFact] = useState<string | null>(null);
+  const [feedbackSent, setFeedbackSent] = useState(false);
   const searchFormRef = useRef<VerseSearchFormRef>(null);
   const { toast } = useToast();
 
@@ -70,6 +73,13 @@ export default function Home() {
     // When exploring themes, default to 'Spiritual' mode for broader results
     handleSearch(theme, supportedScriptures.Spiritual[0], 'Spiritual');
   };
+  
+  const handleFeedbackSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Here you would typically send the feedback to your backend or a service like Formspree
+    console.log('Feedback submitted:', new FormData(e.currentTarget as HTMLFormElement).get('feedback'));
+    setFeedbackSent(true);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -110,18 +120,33 @@ export default function Home() {
           )}
         </div>
       </main>
-      <footer className="py-8 text-center text-sm text-muted-foreground border-t bg-secondary/50">
+      <footer className="py-12 text-center text-sm text-muted-foreground border-t bg-secondary/50">
         <div className="container mx-auto px-4">
-            <p className="mb-4">Developed by Abhijeet Pathy</p>
-            <div className="flex items-center justify-center gap-6">
-                <a href="mailto:abhijeetpathy30@gmail.com?subject=Feedback for The Wisdom Way" className="flex items-center gap-2 hover:text-primary transition-colors">
-                    <Send className="h-4 w-4" />
-                    Send Feedback
-                </a>
-                <a href="https://www.linkedin.com/in/abhijeet-pathy-165b75118/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
-                    <Linkedin className="h-4 w-4" />
-                    LinkedIn
-                </a>
+            <p className="mb-2">Developed by Abhijeet Pathy</p>
+            <a href="https://www.linkedin.com/in/abhijeet-pathy-165b75118/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-primary transition-colors mb-8">
+                <Linkedin className="h-4 w-4" />
+                Connect on LinkedIn
+            </a>
+
+            <div className="max-w-xl mx-auto">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Send Feedback</h3>
+                {feedbackSent ? (
+                    <p className="text-lg text-primary font-medium">Thank you for your feedback!</p>
+                ) : (
+                    <form onSubmit={handleFeedbackSubmit} className="space-y-4">
+                        <Textarea 
+                            name="feedback"
+                            placeholder="Share your thoughts, suggestions, or report an issue..."
+                            required
+                            className="bg-background/80"
+                            rows={4}
+                        />
+                        <Button type="submit" className="w-full md:w-auto">
+                            <Send className="mr-2 h-4 w-4" />
+                            Send Feedback
+                        </Button>
+                    </form>
+                )}
             </div>
         </div>
       </footer>
