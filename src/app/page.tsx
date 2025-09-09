@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
 import { Lightbulb } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 
 export default function Home() {
@@ -19,6 +20,16 @@ export default function Home() {
   const [randomFact, setRandomFact] = useState<string | null>(null);
   const searchFormRef = useRef<VerseSearchFormRef>(null);
   const { toast } = useToast();
+  const router = useRouter();
+
+
+  useEffect(() => {
+    // This is a temporary solution to redirect to onboarding if the cookie is not set.
+    // In a real app this would be handled by a proper auth flow.
+    if (document.cookie.indexOf('rational-religion-profile-complete') === -1) {
+      router.push('/onboarding');
+    }
+  }, [router]);
 
   const handleSearch = (text: string, source: string) => {
     if (!text || text.length < 3) {
