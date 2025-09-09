@@ -3,6 +3,7 @@
 import { performSearch } from '@/ai/flows/perform-search';
 import { transcribeAudio } from '@/ai/flows/transcribe-audio';
 import { getRandomFact } from '@/ai/flows/get-random-fact';
+import { generateOriginMap } from '@/ai/flows/generate-origin-map';
 import type { SearchResult, SearchMode } from '@/lib/types';
 import { z } from 'zod';
 import { supportedScriptures } from '@/lib/data';
@@ -81,5 +82,15 @@ export async function getRandomFactAction(): Promise<{ fact: string | null; erro
         console.error('Error fetching random fact:', e);
         // Return a default fact or an error message.
         return { fact: "The Golden Rule, 'Do unto others as you would have them do unto you,' appears in some form in nearly every major religion.", error: 'Could not fetch a new fact.' };
+    }
+}
+
+export async function generateOriginMapAction(tradition: string): Promise<{imageUrl: string | null; error: string | null}> {
+    try {
+        const { imageUrl } = await generateOriginMap({ tradition });
+        return { imageUrl, error: null };
+    } catch (e) {
+        console.error('Error generating origin map:', e);
+        return { imageUrl: null, error: 'Could not generate an origin map for this tradition.' };
     }
 }
