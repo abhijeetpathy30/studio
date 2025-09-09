@@ -33,8 +33,8 @@ const modeDescriptions: Record<SearchMode, string> = {
 
 export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormProps>(({ onSearch, isLoading }, ref) => {
   const [query, setQuery] = useState('');
-  const [mode, setMode] = useState<SearchMode>('Religious');
-  const [currentScriptures, setCurrentScriptures] = useState(supportedScriptures.Religious);
+  const [mode, setMode] = useState<SearchMode>('Universalist');
+  const [currentScriptures, setCurrentScriptures] = useState(supportedScriptures.Universalist);
   const [source, setSource] = useState(currentScriptures[0]);
   
   const [isRecording, setIsRecording] = useState(false);
@@ -113,8 +113,8 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
   useImperativeHandle(ref, () => ({
     reset: () => {
       setQuery('');
-      setMode('Religious');
-      const defaultScriptures = supportedScriptures['Religious'];
+      setMode('Universalist');
+      const defaultScriptures = supportedScriptures['Universalist'];
       setCurrentScriptures(defaultScriptures);
       setSource(defaultScriptures[0]);
     },
