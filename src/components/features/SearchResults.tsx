@@ -1,10 +1,12 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { SearchResult } from '@/lib/types';
-import { ArrowLeft, BookText, Sparkles, Brain } from 'lucide-react';
+import { ArrowLeft, BookText, Sparkles, Brain, Share2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 
 interface SearchResultsProps {
@@ -14,13 +16,56 @@ interface SearchResultsProps {
 
 export function SearchResults({ result, onClear }: SearchResultsProps) {
   const { verse, analysis, parallels } = result;
+  const { toast } = useToast();
+
+  const handleShare = async () => {
+    const shareText = `"${verse.text}" - ${verse.source}`;
+    const shareData = {
+      title: 'A Moment of Wisdom',
+      text: shareText,
+      url: typeof window !== 'undefined' ? window.location.href : '',
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareText);
+        toast({
+          title: 'Copied to Clipboard',
+          description: 'The verse has been copied for you to share.',
+        });
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      // Fallback for when sharing is cancelled or fails
+      try {
+        await navigator.clipboard.writeText(shareText);
+        toast({
+          title: 'Copied to Clipboard',
+          description: 'The verse has been copied for you to share.',
+        });
+      } catch (copyError) {
+        console.error('Error copying to clipboard:', copyError);
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Could not share or copy the verse.',
+        });
+      }
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <Button variant="outline" size="sm" onClick={onClear}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           New Search
+        </Button>
+         <Button variant="outline" size="sm" onClick={handleShare}>
+          <Share2 className="mr-2 h-4 w-4" />
+          Share
         </Button>
       </div>
 

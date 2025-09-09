@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AboutPage() {
@@ -7,7 +8,7 @@ export default function AboutPage() {
           <Card className="shadow-lg border-primary/20">
             <CardHeader>
               <CardTitle className="text-3xl md:text-4xl font-bold font-headline text-center tracking-tight">
-                My Story
+                Our Story
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 text-lg text-foreground/80 leading-relaxed prose prose-lg max-w-none">
