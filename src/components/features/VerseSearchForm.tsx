@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState, useImperativeHandle, forwardRef, useRef, useTransition, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Loader2, Mic, MicOff, Book, Sparkles, User, Globe, Info } from 'lucide-react';
+import { Search, Loader2, Mic, MicOff, Book, Sparkles, User, Globe } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supportedScriptures } from '@/lib/data';
 import { transcribeAudioAction } from '@/app/actions';
@@ -123,21 +124,20 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
   const isBusy = isLoading || isTranscribing;
 
   const renderModeOption = (value: SearchMode, id: string, Icon: React.ElementType, label: string) => (
-    <div className="flex items-center space-x-2">
-      <RadioGroupItem value={value} id={id} />
-      <Label htmlFor={id} className="flex items-center gap-2 cursor-pointer text-base">
-        <Icon className="h-5 w-5" />
-        {label}
-      </Label>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Info className="h-3.5 w-3.5 text-muted-foreground/70 cursor-pointer" />
-        </TooltipTrigger>
-        <TooltipContent className='max-w-xs'>
-          <p>{modeDescriptions[value]}</p>
-        </TooltipContent>
-      </Tooltip>
-    </div>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="flex items-center">
+            <RadioGroupItem value={value} id={id} />
+            <Label htmlFor={id} className="flex items-center gap-2 cursor-pointer text-base pl-2">
+                <Icon className="h-5 w-5" />
+                {label}
+            </Label>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent className='max-w-xs'>
+        <p>{modeDescriptions[value]}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 
   return (
