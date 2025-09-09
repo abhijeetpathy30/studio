@@ -90,7 +90,7 @@ const nonReligiousScripturesRaw = [
 export const religiousScriptures = ["Default (All Religious Texts)", ...religiousScripturesRaw.sort()];
 export const spiritualScriptures = ["Default (All Spiritual Texts)", ...spiritualScripturesRaw.sort()];
 export const nonReligiousScriptures = ["Default (All Non-Religious Texts)", ...nonReligiousScripturesRaw.sort()];
-export const universalistScriptures = ["Default (All Texts)", ...[...religiousScripturesRaw, ...spiritualScripturesRaw, ...nonReligiousScripturesRaw].sort()];
+export const universalistScriptures = ["Default (All Texts)", ...Array.from(new Set([...religiousScripturesRaw, ...spiritualScripturesRaw, ...nonReligiousScripturesRaw])).sort()];
 
 
 export const supportedScriptures: Record<SearchMode, string[]> = {
