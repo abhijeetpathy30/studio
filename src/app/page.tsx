@@ -1,7 +1,8 @@
+
 'use client';
 
-import { useState, useRef, useTransition, useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useState, useRef, useTransition, useEffect, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { Header } from '@/components/layout/Header';
 import { VerseSearchForm, type VerseSearchFormRef } from '@/components/features/VerseSearchForm';
 import { SearchResults } from '@/components/features/SearchResults';
@@ -16,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 
 function FeedbackForm() {
-  const [formState, formAction] = useFormState(sendFeedbackAction, { success: false, message: '' });
+  const [formState, formAction] = useActionState(sendFeedbackAction, { success: false, message: '' });
   const [feedback, setFeedback] = useState('');
   const { pending } = useFormStatus();
 
