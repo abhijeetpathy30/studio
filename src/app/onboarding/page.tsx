@@ -39,6 +39,10 @@ export default function OnboardingPage() {
     
     try {
         await createUserProfile(mockUserId, finalProfile as UserProfile);
+        
+        // After successfully creating the profile, set the completion cookie
+        await fetch('/api/onboarding/complete', { method: 'POST' });
+
         nextStep();
     } catch (error) {
         console.error("Failed to save profile", error);
