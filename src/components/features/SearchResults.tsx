@@ -36,14 +36,19 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
           description: 'The verse has been copied for you to share.',
         });
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Don't show an error if the user cancels the share dialog.
+      if (error.name === 'AbortError') {
+        return;
+      }
+      
       console.error('Error sharing:', error);
-      // Fallback for when sharing is cancelled or fails
+      // Fallback for when sharing fails for other reasons
       try {
         await navigator.clipboard.writeText(shareText);
         toast({
           title: 'Copied to Clipboard',
-          description: 'The verse has been copied for you to share.',
+          description: 'Sharing failed, so the verse has been copied for you.',
         });
       } catch (copyError) {
         console.error('Error copying to clipboard:', copyError);
@@ -128,7 +133,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
               )) : <p className='text-muted-foreground'>No parallels found by the AI.</p>}
             </ul>
           </CardContent>
-        </Card>
+        </card>
       </div>
     </div>
   );
