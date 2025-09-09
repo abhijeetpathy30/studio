@@ -1,4 +1,4 @@
-import { BookHeart } from 'lucide-react';
+import { BookHeart, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import { ColorThemeToggle } from './ColorThemeToggle';
@@ -14,7 +14,10 @@ export function Header() {
         </Link>
         <div className='flex items-center gap-2'>
            <Button asChild variant="ghost">
-              <Link href="/about">About</Link>
+              <Link href="/about" className="flex items-center gap-2">
+                <Menu className="h-5 w-5" />
+                About
+              </Link>
            </Button>
           <ColorThemeToggle />
           <ThemeToggle />
