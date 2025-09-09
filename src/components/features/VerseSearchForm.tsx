@@ -123,7 +123,7 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
   const isBusy = isLoading || isTranscribing;
 
   const renderModeOption = (value: SearchMode, id: string, Icon: React.ElementType, label: string) => (
-    <div className="flex items-center space-x-1">
+    <div className="flex items-center space-x-2">
       <RadioGroupItem value={value} id={id} />
       <Label htmlFor={id} className="flex items-center gap-2 cursor-pointer text-base">
         <Icon className="h-5 w-5" />
@@ -131,7 +131,7 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
       </Label>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Info className="h-3.5 w-3.5 text-muted-foreground/80 cursor-pointer" />
+          <Info className="h-3.5 w-3.5 text-muted-foreground/70 cursor-pointer" />
         </TooltipTrigger>
         <TooltipContent className='max-w-xs'>
           <p>{modeDescriptions[value]}</p>
@@ -141,61 +141,61 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
   );
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-4">
+    <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-6">
       <div className="flex flex-col md:flex-row gap-2 w-full">
-        <div className="relative flex-grow w-full">
+        <div className="relative flex-grow">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={isRecording ? "Recording... speak now" : isTranscribing ? "Transcribing..." : "Search verse or topic (e.g., 'love', 'Romans 12:21')"}
-            className="w-full pl-11 h-12 text-base rounded-full"
+            className="w-full pl-11 h-12 text-base"
             disabled={isBusy}
           />
         </div>
-        <div className="flex gap-2 w-full md:w-auto">
-            <Select onValueChange={setSource} value={source} disabled={isBusy}>
-                <SelectTrigger className="w-full md:w-[240px] h-12 rounded-full text-base">
-                <SelectValue placeholder="Select a source" />
-                </SelectTrigger>
-                <SelectContent>
-                {currentScriptures.map(scripture => (
-                    <SelectItem key={scripture} value={scripture}>{scripture}</SelectItem>
-                ))}
-                </SelectContent>
-            </Select>
-            <Button
-                type="button"
-                variant={isRecording ? 'destructive' : 'outline'}
-                size="icon"
-                className="h-12 w-12 rounded-full"
-                onClick={handleMicClick}
-                disabled={isBusy}
-                aria-label={isRecording ? 'Stop recording' : 'Start recording'}
-            >
-                {isTranscribing ? <Loader2 className="h-5 w-5 animate-spin" /> : (isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />)}
-            </Button>
-            <Button
-                type="submit"
-                className="h-12 rounded-full px-6"
-                disabled={isBusy}
-            >
-                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Search'}
-            </Button>
+        <div className="flex gap-2 w-full md:w-auto shrink-0">
+          <Select onValueChange={setSource} value={source} disabled={isBusy}>
+            <SelectTrigger className="w-full md:w-[240px] h-12 text-base">
+              <SelectValue placeholder="Select a source" />
+            </SelectTrigger>
+            <SelectContent>
+              {currentScriptures.map(scripture => (
+                <SelectItem key={scripture} value={scripture}>{scripture}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            type="button"
+            variant={isRecording ? 'destructive' : 'outline'}
+            size="icon"
+            className="h-12 w-12 shrink-0"
+            onClick={handleMicClick}
+            disabled={isBusy}
+            aria-label={isRecording ? 'Stop recording' : 'Start recording'}
+          >
+            {isTranscribing ? <Loader2 className="h-5 w-5 animate-spin" /> : (isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />)}
+          </Button>
+          <Button
+            type="submit"
+            className="h-12 px-6"
+            disabled={isBusy}
+          >
+            {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Search'}
+          </Button>
         </div>
       </div>
       <TooltipProvider delayDuration={200}>
         <RadioGroup
-            value={mode}
-            onValueChange={(value) => setMode(value as SearchMode)}
-            className="flex items-center justify-center gap-2 md:gap-4 py-2 flex-wrap"
-            disabled={isBusy}
+          value={mode}
+          onValueChange={(value) => setMode(value as SearchMode)}
+          className="flex items-center justify-center gap-4 md:gap-6 py-2 flex-wrap"
+          disabled={isBusy}
         >
-            {renderModeOption('Religious', 'mode-religious', Book, 'Religious')}
-            {renderModeOption('Spiritual', 'mode-spiritual', Sparkles, 'Spiritual')}
-            {renderModeOption('Non-Religious', 'mode-non-religious', User, 'Non-Religious')}
-            {renderModeOption('Universalist', 'mode-universalist', Globe, 'Universalist')}
+          {renderModeOption('Religious', 'mode-religious', Book, 'Religious')}
+          {renderModeOption('Spiritual', 'mode-spiritual', Sparkles, 'Spiritual')}
+          {renderModeOption('Non-Religious', 'mode-non-religious', User, 'Non-Religious')}
+          {renderModeOption('Universalist', 'mode-universalist', Globe, 'Universalist')}
         </RadioGroup>
       </TooltipProvider>
     </form>
