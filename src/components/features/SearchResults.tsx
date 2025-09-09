@@ -133,7 +133,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
               )) : <p className='text-muted-foreground'>No parallels found by the AI.</p>}
             </ul>
           </CardContent>
-        </card>
+        </Card>
       </div>
     </div>
   );
