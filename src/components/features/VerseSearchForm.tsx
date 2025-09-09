@@ -3,7 +3,7 @@
 import { useState, useImperativeHandle, forwardRef, useRef, useTransition, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Loader2, Mic, MicOff, Book, Sparkles, User } from 'lucide-react';
+import { Search, Loader2, Mic, MicOff, Book, Sparkles, User, Globe } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supportedScriptures } from '@/lib/data';
 import { transcribeAudioAction } from '@/app/actions';
@@ -162,7 +162,7 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
        <RadioGroup
         value={mode}
         onValueChange={(value) => setMode(value as SearchMode)}
-        className="flex items-center justify-center gap-2 md:gap-4 py-2"
+        className="flex items-center justify-center gap-2 md:gap-4 py-2 flex-wrap"
         disabled={isBusy}
       >
         <div className="flex items-center space-x-2">
@@ -184,6 +184,13 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
           <Label htmlFor="mode-non-religious" className="flex items-center gap-2 cursor-pointer text-base">
             <User className="h-5 w-5" />
             Non-Religious
+          </Label>
+        </div>
+         <div className="flex items-center space-x-2">
+          <RadioGroupItem value="Universalist" id="mode-universalist" />
+          <Label htmlFor="mode-universalist" className="flex items-center gap-2 cursor-pointer text-base">
+            <Globe className="h-5 w-5" />
+            Universalist
           </Label>
         </div>
       </RadioGroup>

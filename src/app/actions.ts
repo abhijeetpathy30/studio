@@ -10,7 +10,7 @@ import { supportedScriptures } from '@/lib/data';
 const SearchSchema = z.object({
     query: z.string().min(3, 'Search query must be at least 3 characters long.'),
     source: z.string(),
-    mode: z.enum(['Religious', 'Spiritual', 'Non-Religious']),
+    mode: z.enum(['Religious', 'Spiritual', 'Non-Religious', 'Universalist']),
 });
 
 export async function searchVerseAction(prevState: any, formData: FormData): Promise<{data: SearchResult | null, error: string | null}> {

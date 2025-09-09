@@ -72,6 +72,25 @@ const nonReligiousPrompt = ai.definePrompt({
     `,
 });
 
+const universalistPrompt = ai.definePrompt({
+  name: 'performUniversalistSearchPrompt',
+  input: {schema: PerformSearchInputSchema},
+  output: {schema: PerformSearchOutputSchema},
+  prompt: `You are an expert research assistant specializing in comparative philosophy and religion. Your goal is to perform a comprehensive analysis based on a user's query, drawing from all available texts (religious, spiritual, and non-religious).
+
+    **CRITICAL REQUIREMENT:**
+    1.  **Verse Retrieval**: You **MUST** find the single best quote/passage matching the user's topic "{{query}}" from the vast library of human wisdom, regardless of its origin.
+    2.  **Source Priority**: If a specific source is selected ("{{source}}"), you **MUST** prioritize it. If you cannot find a relevant passage on that topic within "{{source}}", you **MUST** return \`null\` for all fields. Do not look in other scriptures.
+    3.  If a passage is found, and only if a passage is found:
+        *   **Verse Analysis**: Provide a clear analysis of its meaning within its original context, a list of key insights, and a universal, philosophical reflection accessible to all.
+        *   **Cross-Tradition Parallels**: Find and list several similar passages from a diverse range of *other* traditions (religious, spiritual, and non-religious). Each parallel MUST be a single string containing both the quote and its full reference.
+
+    Accuracy is paramount. Do not invent passages.
+    **Topic**: {{{query}}}
+    {{#if source}}**Source**: {{{source}}}{{/if}}
+    `,
+});
+
 
 const performSearchFlow = ai.defineFlow(
   {
@@ -87,6 +106,9 @@ const performSearchFlow = ai.defineFlow(
         break;
       case 'Non-Religious':
         activePrompt = nonReligiousPrompt;
+        break;
+      case 'Universalist':
+        activePrompt = universalistPrompt;
         break;
       case 'Religious':
       default:

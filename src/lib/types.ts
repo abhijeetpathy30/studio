@@ -22,7 +22,7 @@ const ParallelsSchema = z.object({
     .describe('Similar verses or teachings from other traditions.'),
 });
 
-export const SearchModeSchema = z.enum(['Religious', 'Spiritual', 'Non-Religious']);
+export const SearchModeSchema = z.enum(['Religious', 'Spiritual', 'Non-Religious', 'Universalist']);
 export type SearchMode = z.infer<typeof SearchModeSchema>;
 
 export const PerformSearchInputSchema = z.object({
