@@ -192,10 +192,10 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
           className="flex items-center justify-center gap-4 md:gap-6 py-2 flex-wrap"
           disabled={isBusy}
         >
-          {renderModeOption('Religious', 'mode-religious', Book, 'Religious')}
-          {renderModeOption('Spiritual', 'mode-spiritual', Sparkles, 'Spiritual')}
-          {renderModeOption('Non-Religious', 'mode-non-religious', User, 'Non-Religious')}
           {renderModeOption('Universalist', 'mode-universalist', Globe, 'Universalist')}
+          {renderModeOption('Spiritual', 'mode-spiritual', Sparkles, 'Spiritual')}
+          {renderModeOption('Religious', 'mode-religious', Book, 'Religious')}
+          {renderModeOption('Non-Religious', 'mode-non-religious', User, 'Non-Religious')}
         </RadioGroup>
       </TooltipProvider>
     </form>
