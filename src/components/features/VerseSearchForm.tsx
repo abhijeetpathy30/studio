@@ -131,7 +131,7 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
       </Label>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
+          <Info className="h-3.5 w-3.5 text-muted-foreground/80 cursor-pointer" />
         </TooltipTrigger>
         <TooltipContent className='max-w-xs'>
           <p>{modeDescriptions[value]}</p>
