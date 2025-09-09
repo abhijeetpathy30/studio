@@ -31,13 +31,13 @@ export function Header() {
           <span>The Wisdom Way</span>
         </Link>
         <div className='flex items-center gap-2'>
-           <Button asChild variant="ghost" size="icon" aria-label={isAboutPage ? "Back to Home" : "About the App"}>
+           <Button asChild variant="outline" size="icon" aria-label={isAboutPage ? "Back to Home" : "About the App"}>
               <Link href={heartHref}>
                 <Heart className="h-5 w-5" />
               </Link>
            </Button>
            {permission !== 'denied' && (
-             <Button variant={notificationsEnabled ? "default" : "ghost"} size="icon" onClick={handleReminderClick} aria-label="Toggle daily reminders">
+             <Button variant={notificationsEnabled ? "default" : "outline"} size="icon" onClick={handleReminderClick} aria-label="Toggle daily reminders">
                 <Bell className="h-5 w-5" />
              </Button>
            )}
