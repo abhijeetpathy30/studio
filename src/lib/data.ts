@@ -33,7 +33,11 @@ export const supportedScriptures = [
     "Works of Plato",
     "Writings of Bahá’u’lláh",
     "Zhuangzi",
-];
+].sort((a, b) => {
+    if (a === "Default (All Scriptures)") return -1;
+    if (b === "Default (All Scriptures)") return 1;
+    return a.localeCompare(b);
+});
 
 
 // This data is now for theme exploration fallback and initial display.
