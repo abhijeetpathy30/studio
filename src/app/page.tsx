@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useTransition, useEffect } from 'react';
+import { useState, useRef, useTransition } from 'react';
 import { Header } from '@/components/layout/Header';
 import { VerseSearchForm, type VerseSearchFormRef } from '@/components/features/VerseSearchForm';
 import { SearchResults } from '@/components/features/SearchResults';
@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
 import { Lightbulb, Linkedin } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 
 export default function Home() {
@@ -86,6 +87,13 @@ export default function Home() {
           </p>
         </section>
 
+        <section className="max-w-4xl mx-auto mb-12 text-center bg-card border rounded-lg p-6 md:p-8 shadow-sm">
+            <h2 className="text-2xl md:text-3xl font-bold font-headline mb-4">What is The Wisdom Way?</h2>
+            <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+              In a world that often highlights our differences, The Wisdom Way seeks to uncover the profound threads of wisdom that connect us all. Our mission is to foster a sense of unity across religions, cultures, believers, and non-believers by making the world’s philosophical knowledge easily accessible. Whether you're wrestling with a tough question or simply curious, this is a tool to spark insight and find common ground.
+            </p>
+        </section>
+
         <VerseSearchForm ref={searchFormRef} onSearch={handleSearch} isLoading={isPending} />
 
         <div className="mt-12">
@@ -114,8 +122,8 @@ export default function Home() {
       </main>
       <footer className="py-12 text-center text-sm text-muted-foreground border-t bg-secondary/50">
         <div className="container mx-auto px-4">
-            <p className="mb-2">Developed by Abhijeet Pathy</p>
-            <a href="https://www.linkedin.com/in/abhijeet-pathy-165b75118/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-primary transition-colors mb-8">
+            <p className="mb-4">Developed by Abhijeet Pathy</p>
+            <a href="https://www.linkedin.com/in/abhijeet-pathy-165b75118/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-primary transition-colors">
                 <Linkedin className="h-4 w-4" />
                 Connect on LinkedIn
             </a>
