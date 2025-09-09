@@ -5,17 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { SearchResult } from '@/lib/types';
 import { ArrowLeft, BookText, Sparkles, Brain } from 'lucide-react';
-import { OriginMapCard } from './OriginMapCard';
 
 
 interface SearchResultsProps {
     result: SearchResult;
     onClear: () => void;
-    originMapUrl: string | null;
-    isGeneratingMap: boolean;
 }
 
-export function SearchResults({ result, onClear, originMapUrl, isGeneratingMap }: SearchResultsProps) {
+export function SearchResults({ result, onClear }: SearchResultsProps) {
   const { verse, analysis, parallels } = result;
 
   return (
@@ -39,11 +36,8 @@ export function SearchResults({ result, onClear, originMapUrl, isGeneratingMap }
         </CardContent>
       </Card>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1">
-             <OriginMapCard imageUrl={originMapUrl} isGenerating={isGeneratingMap} tradition={verse.tradition} />
-        </div>
-        <Card className="lg:col-span-1">
+      <div className="grid md:grid-cols-2 gap-8">
+        <Card>
           <CardHeader className="flex flex-row items-center gap-3">
             <Sparkles className="h-6 w-6 text-primary" />
             <CardTitle className="font-headline text-2xl">AI Analysis</CardTitle>
@@ -74,7 +68,7 @@ export function SearchResults({ result, onClear, originMapUrl, isGeneratingMap }
             </Accordion>
           </CardContent>
         </Card>
-        <Card className="lg:col-span-1">
+        <Card>
           <CardHeader className="flex flex-row items-center gap-3">
             <BookText className="h-6 w-6 text-primary" />
             <CardTitle className="font-headline text-2xl">Cross-Tradition Parallels</CardTitle>

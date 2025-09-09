@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { VerseSearchForm, type VerseSearchFormRef } from '@/components/features/VerseSearchForm';
 import { SearchResults } from '@/components/features/SearchResults';
 import { ThemeExplorer } from '@/components/features/ThemeExplorer';
-import { searchVerseAction, getRandomFactAction, generateOriginMapAction } from '@/app/actions';
+import { searchVerseAction, getRandomFactAction } from '@/app/actions';
 import type { SearchResult, SearchMode } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -14,9 +14,7 @@ import { Lightbulb, Mail, Send } from 'lucide-react';
 
 export default function Home() {
   const [result, setResult] = useState<SearchResult | null>(null);
-  const [originMapUrl, setOriginMapUrl] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [isGeneratingMap, startMapGeneration] = useTransition();
   const [randomFact, setRandomFact] = useState<string | null>(null);
   const searchFormRef = useRef<VerseSearchFormRef>(null);
   const { toast } = useToast();
@@ -33,7 +31,6 @@ export default function Home() {
     
     startTransition(async () => {
       setResult(null);
-      setOriginMapUrl(null);
       setRandomFact(null);
 
       // Fetch a random fact as soon as the search starts
@@ -59,24 +56,12 @@ export default function Home() {
         setResult(null);
       } else {
         setResult(data);
-        if (data?.verse.tradition) {
-            startMapGeneration(async () => {
-                const { imageUrl, error: mapError } = await generateOriginMapAction(data.verse.tradition);
-                if (imageUrl) {
-                    setOriginMapUrl(imageUrl);
-                }
-                if (mapError) {
-                    console.warn(mapError);
-                }
-            });
-        }
       }
     });
   };
 
   const handleClear = () => {
     setResult(null);
-    setOriginMapUrl(null);
     searchFormRef.current?.reset();
   };
 
@@ -119,7 +104,7 @@ export default function Home() {
               </div>
             </div>
           ) : result ? (
-            <SearchResults result={result} onClear={handleClear} originMapUrl={originMapUrl} isGeneratingMap={isGeneratingMap} />
+            <SearchResults result={result} onClear={handleClear} />
           ) : (
             <ThemeExplorer onThemeSelect={handleThemeSelect} />
           )}
