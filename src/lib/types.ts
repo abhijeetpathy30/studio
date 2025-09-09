@@ -43,14 +43,3 @@ export type SearchResult = {
   analysis: z.infer<typeof AnalysisSchema>;
   parallels: z.infer<typeof ParallelsSchema>;
 };
-
-// User Profile System
-export const UserProfileSchema = z.object({
-  name: z.string(),
-  identity: z.enum(['Religious', 'Spiritual', 'Non-religious']),
-  selectedTraditions: z.array(z.string()),
-  interests: z.array(z.string()),
-  createdAt: z.string(), // Using ISO string for timestamp
-});
-
-export type UserProfile = z.infer<typeof UserProfileSchema>;
