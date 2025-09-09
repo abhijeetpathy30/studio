@@ -149,7 +149,7 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={isRecording ? "Recording... speak now" : isTranscribing ? "Transcribing..." : "Search verse or topic (e.g., 'love', 'Romans 12:21')"}
+            placeholder={isRecording ? "Recording... speak now" : isTranscribing ? "Transcribing..." : "Search for a topic, question, or verse..."}
             className="w-full pl-11 h-12 text-base"
             disabled={isBusy}
           />
