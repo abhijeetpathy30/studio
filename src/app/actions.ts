@@ -30,14 +30,14 @@ export async function searchVerseAction(prevState: any, formData: FormData): Pro
     try {
         const searchResult = await performSearch({ query, mode });
 
-        if (!searchResult?.verse || !searchResult?.analysis || !searchResult?.parallels) {
+        if (!searchResult?.verse || !searchResult?.analysis) {
             return { data: null, error: 'No verse found matching your query. Please try another search or explore themes.' };
         }
         
         const result: SearchResult = {
             verse: { ...searchResult.verse, id: searchResult.verse.source }, // Use source as a temporary ID
             analysis: searchResult.analysis,
-            parallels: searchResult.parallels,
+            parallels: searchResult.parallels ?? { parallels: [] },
             initialMode: mode,
         };
 

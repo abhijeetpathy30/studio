@@ -19,7 +19,7 @@ interface SearchResultsProps {
 
 export function SearchResults({ result, onClear }: SearchResultsProps) {
   const { verse, analysis, parallels: initialParallels, initialMode } = result;
-  const [parallels, setParallels] = useState(initialParallels.parallels);
+  const [parallels, setParallels] = useState(initialParallels?.parallels || []);
   const [currentParallelMode, setCurrentParallelMode] = useState<SearchMode>(initialMode);
   const [currentParallelSource, setCurrentParallelSource] = useState<string>('Default');
   const [currentSourceOptions, setCurrentSourceOptions] = useState<string[]>(supportedScriptures[initialMode]);
