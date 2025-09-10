@@ -4,9 +4,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import type { SearchResult } from '@/lib/types';
-import { ArrowLeft, BookText, Sparkles, Brain, Share2, Link as LinkIcon, Copy } from 'lucide-react';
+import { ArrowLeft, BookText, Sparkles, Brain, Share2, Link as LinkIcon, Copy, MessageSquare, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SocialIcon } from 'react-social-icons';
 
@@ -22,23 +22,27 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
   
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
   const shareText = `Check out this piece of wisdom I found on The Wisdom Way: "${verse.text}" - ${verse.source}`;
+  const quotationText = `"${verse.text}" - ${verse.source}`;
 
   const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
   const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`;
   const linkedinShareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(`Wisdom from ${verse.tradition}`)}&summary=${encodeURIComponent(shareText)}`;
+  const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+  const emailShareUrl = `mailto:?subject=${encodeURIComponent(`A Piece of Wisdom from The Wisdom Way`)}&body=${encodeURIComponent(shareText)}`;
+  const smsShareUrl = `sms:?body=${encodeURIComponent(shareText)}`;
 
-  const handleCopy = async () => {
+  const handleCopyText = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(quotationText);
       toast({
-        title: 'Link Copied',
-        description: 'The link has been copied to your clipboard.',
+        title: 'Text Copied',
+        description: 'The quotation has been copied to your clipboard.',
       });
     } catch (error) {
        toast({
           variant: 'destructive',
           title: 'Error',
-          description: 'Could not copy the link.',
+          description: 'Could not copy the text.',
       });
     }
   };
@@ -46,7 +50,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
   const handleNativeShare = async () => {
     const shareData = {
       title: 'A Moment of Wisdom',
-      text: `"${verse.text}" - ${verse.source}`,
+      text: quotationText,
       url: shareUrl,
     };
 
@@ -54,9 +58,8 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        // This case should ideally not be hit if the button is not shown,
-        // but it's here as a fallback.
-        handleCopy();
+        // Fallback for browsers that don't support navigator.share
+        handleCopyText();
       }
     } catch (error: any) {
       if (error.name !== 'AbortError') {
@@ -87,10 +90,13 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
                 {navigator.share && (
-                    <DropdownMenuItem onClick={handleNativeShare}>
-                        <Share2 className="mr-2 h-4 w-4" />
-                        <span>Share via...</span>
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem onClick={handleNativeShare}>
+                          <Share2 className="mr-2 h-4 w-4" />
+                          <span>Share via...</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
                 )}
                  <DropdownMenuItem onClick={() => window.open(twitterShareUrl, '_blank')}>
                     <SocialIcon network="x" style={{ height: 20, width: 20 }} className="mr-2" />
@@ -104,9 +110,22 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
                     <SocialIcon network="linkedin" style={{ height: 20, width: 20 }} className="mr-2" />
                     <span>Share on LinkedIn</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleCopy}>
+                <DropdownMenuItem onClick={() => window.open(whatsappShareUrl, '_blank')}>
+                    <SocialIcon network="whatsapp" style={{ height: 20, width: 20 }} className="mr-2" />
+                    <span>Share on WhatsApp</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                 <DropdownMenuItem onClick={() => window.location.href = emailShareUrl}>
+                    <Mail className="mr-2 h-4 w-4" />
+                    <span>Share via Email</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.location.href = smsShareUrl}>
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    <span>Share via Messages</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleCopyText}>
                     <Copy className="mr-2 h-4 w-4" />
-                    <span>Copy Link</span>
+                    <span>Copy Text</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
@@ -160,7 +179,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
           <CardHeader className="flex flex-row items-center gap-3">
             <BookText className="h-6 w-6 text-primary" />
             <CardTitle className="font-headline text-2xl">Cross-Tradition Parallels</CardTitle>
-          </CardHeader>
+          </Header>
           <CardContent>
             <ul className="space-y-4">
               {parallels.parallels.length > 0 ? parallels.parallels.map((parallel, index) => (
