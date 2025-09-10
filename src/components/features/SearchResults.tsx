@@ -23,7 +23,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
   const [canShare, setCanShare] = useState(false);
 
   useEffect(() => {
-    if (navigator.share) {
+    if (typeof navigator !== 'undefined' && navigator.share) {
       setCanShare(true);
     }
   }, []);
@@ -63,12 +63,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
     };
 
     try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        // Fallback for browsers that don't support navigator.share
-        handleCopyText();
-      }
+      await navigator.share(shareData);
     } catch (error: any) {
       if (error.name !== 'AbortError') {
         console.error('Error sharing:', error);
