@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import type { SearchResult } from '@/lib/types';
-import { ArrowLeft, BookText, Sparkles, Brain, Share2, Link as LinkIcon, Copy, MessageSquare, Mail } from 'lucide-react';
+import { ArrowLeft, BookText, Sparkles, Brain, Share2, Copy, MessageSquare, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SocialIcon } from 'react-social-icons';
 
