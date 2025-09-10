@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from './use-toast';
 import { getRandomFactAction } from '@/app/actions';
 
-const NOTIFICATION_TAG = 'wisdom-way-reminder';
+const NOTIFICATION_TAG = 'wise-way-reminder';
 const STORAGE_KEY = 'notifications_enabled';
 
 export function useNotifications() {
@@ -83,7 +83,7 @@ export function useNotifications() {
         body = fact;
     }
 
-    registration.showNotification('A Moment from The Wisdom Way', {
+    registration.showNotification('A Moment from The wise way', {
       body,
       icon: '/icons/icon-192x192.png',
       tag: NOTIFICATION_TAG,

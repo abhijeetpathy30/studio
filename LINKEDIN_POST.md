@@ -5,13 +5,13 @@
 
 ---
 
-I'm thrilled to finally share a personal project I've been passionately building: **The Wisdom Way**.
+I'm thrilled to finally share a personal project I've been passionately building: **The wise way**.
 
 It’s an AI-powered web app designed to help you explore the profound wisdom embedded in the world's religious and philosophical texts.
 
 We often hear about the differences that divide us, but I wanted to use technology to uncover the universal threads of wisdom that connect us. What if you could instantly find parallels between Christian teachings on compassion and Buddhist principles? Or explore the concept of justice as discussed by both ancient Greek philosophers and in the Talmud?
 
-With The Wisdom Way, you can.
+With The wise way, you can.
 
 **Here are a few features I’m excited about:**
 

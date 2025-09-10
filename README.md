@@ -1,4 +1,4 @@
-# The Wisdom Way
+# The wise way
 
 This is a Next.js application built with Firebase Studio that allows users to explore religious and philosophical texts with the help of AI.
 

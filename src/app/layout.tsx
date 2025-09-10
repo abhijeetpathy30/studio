@@ -7,7 +7,7 @@ import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import { Header } from '@/components/layout/Header';
 import { Linkedin } from 'lucide-react';
 
-const APP_NAME = "The Wisdom Way";
+const APP_NAME = "The wise way";
 const APP_DESCRIPTION = "Explore universal spiritual concepts across traditions.";
 
 export const metadata: Metadata = {
