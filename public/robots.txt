@@ -1,2 +1,5 @@
+
 User-agent: *
 Allow: /
+
+Sitemap: https://studio-khaki-three.vercel.app/sitemap.xml
