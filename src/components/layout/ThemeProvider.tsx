@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -24,7 +25,7 @@ const ColorThemeContext = React.createContext<ColorThemeContextState | undefined
 
 function ColorThemeProvider({
   children,
-  defaultTheme = "indigo",
+  defaultTheme = "amber",
   storageKey = THEME_STORAGE_KEY,
 }: ColorThemeProviderProps) {
   const [theme, setTheme] = React.useState<ColorTheme>(defaultTheme as ColorTheme);
