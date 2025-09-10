@@ -32,7 +32,7 @@ For the given verse from a specific tradition, find several parallel teachings, 
 - If 'targetMode' is Non-Religious, use philosophical and secular works.
 - If 'targetMode' is Universalist, draw from all categories.
 
-Do not include parallels from the verse's original tradition. Each parallel MUST be a single string containing both the quote and its full reference.
+Each parallel MUST be a single string containing both the quote and its full reference.
 
 {{#if targetSources.length}}
 **CRITICAL**: You MUST find parallels from the specified texts:
@@ -41,7 +41,7 @@ Do not include parallels from the verse's original tradition. Each parallel MUST
 {{/each}}
 If no parallels can be found in any of the specified texts, return an empty array. Do not search in other texts.
 {{else}}
-You may find parallels from any relevant text within the target worldview.
+You may find parallels from any relevant text within the target worldview. Do not include parallels from the verse's original tradition.
 {{/if}}
 
 Original Verse: "{{verse}}"
