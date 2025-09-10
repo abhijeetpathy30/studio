@@ -9,6 +9,7 @@ import type { SearchResult } from '@/lib/types';
 import { ArrowLeft, BookText, Sparkles, Brain, Share2, Copy, MessageSquare, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SocialIcon } from 'react-social-icons';
+import { useEffect, useState } from 'react';
 
 
 interface SearchResultsProps {
@@ -19,6 +20,13 @@ interface SearchResultsProps {
 export function SearchResults({ result, onClear }: SearchResultsProps) {
   const { verse, analysis, parallels } = result;
   const { toast } = useToast();
+  const [canShare, setCanShare] = useState(false);
+
+  useEffect(() => {
+    if (navigator.share) {
+      setCanShare(true);
+    }
+  }, []);
   
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
   const shareText = `Check out this piece of wisdom I found on The Wisdom Way: "${verse.text}" - ${verse.source}`;
@@ -89,7 +97,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
-                {navigator.share && (
+                {canShare && (
                     <>
                       <DropdownMenuItem onClick={handleNativeShare}>
                           <Share2 className="mr-2 h-4 w-4" />
