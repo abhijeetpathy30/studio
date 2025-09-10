@@ -1,11 +1,11 @@
 
 'use server';
 
-import { performSearch } from '@/ai/flows/perform-search';
 import { transcribeAudio } from '@/ai/flows/transcribe-audio';
 import { getRandomFact } from '@/ai/flows/get-random-fact';
 import { findSpecificParallels } from '@/ai/flows/find-specific-parallels';
-import type { SearchResult, SearchMode } from '@/lib/types';
+import { performSearch } from '@/ai/flows/perform-search';
+import type { SearchMode, SearchResult } from '@/lib/types';
 import { z } from 'zod';
 
 const SearchSchema = z.object({
@@ -30,21 +30,21 @@ export async function searchVerseAction(prevState: any, formData: FormData): Pro
     try {
         const searchResult = await performSearch({ query, mode });
 
-        if (!searchResult?.verse || !searchResult?.analysis) {
+        if (!searchResult || !searchResult.verse) {
             return { data: null, error: 'No verse found matching your query. Please try another search or explore themes.' };
         }
         
         const result: SearchResult = {
             verse: { ...searchResult.verse, id: searchResult.verse.source }, // Use source as a temporary ID
             analysis: searchResult.analysis,
-            parallels: searchResult.parallels ?? { parallels: [] },
+            parallels: searchResult.parallels || { parallels: [] }, // Ensure parallels is not null
             initialMode: mode,
         };
 
         return { data: result, error: null };
     } catch (e) {
         console.error(e);
-        return { data: null, error: 'An error occurred while analyzing the verse. Please try again later.' };
+        return { data: null, error: 'An error occurred while searching for the verse. Please try again later.' };
     }
 }
 
@@ -74,7 +74,6 @@ export async function getRandomFactAction(): Promise<{ fact: string | null; erro
         return { fact, error: null };
     } catch (e) {
         console.error('Error fetching random fact:', e);
-        // Return a default fact or an error message.
         return { fact: "The Golden Rule, 'Do unto others as you would have them do unto you,' appears in some form in nearly every major religion.", error: 'Could not fetch a new fact.' };
     }
 }

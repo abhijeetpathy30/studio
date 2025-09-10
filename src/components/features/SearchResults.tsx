@@ -1,16 +1,17 @@
 
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useTransition, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import type { SearchResult, SearchMode } from '@/lib/types';
+import type { SearchMode, Verse, Analysis, Parallels, SearchResult } from '@/lib/types';
 import { ArrowLeft, BookText, Sparkles, Brain, Loader2, RefreshCw } from 'lucide-react';
 import { findParallelsAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
 import { MultiSelect, type Option } from '@/components/ui/multi-select';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface SearchResultsProps {
     result: SearchResult;
@@ -18,40 +19,40 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({ result, onClear }: SearchResultsProps) {
-  const { verse, analysis, parallels: initialParallels, initialMode } = result;
-  const [parallels, setParallels] = useState(initialParallels?.parallels || []);
+  const { verse, analysis, initialMode } = result;
+  const [parallels, setParallels] = useState<string[]>(result.parallels.parallels);
   const [currentParallelSources, setCurrentParallelSources] = useState<string[]>([]);
   const [currentSourceOptions, setCurrentSourceOptions] = useState<Option[]>([]);
-  const [isPending, startTransition] = useTransition();
+  const [isFetchingParallels, startParallelsTransition] = useTransition();
   const { toast } = useToast();
 
+  const fetchParallels = useCallback((sources?: string[]) => {
+    startParallelsTransition(async () => {
+      const { parallels: newParallels, error } = await findParallelsAction(verse.text, verse.tradition, initialMode, sources);
+      if (error) {
+        toast({ variant: 'destructive', title: 'Error fetching parallels', description: error });
+      } else {
+        setParallels(newParallels || []);
+      }
+    });
+  }, [verse.text, verse.tradition, initialMode, toast]);
+
   useEffect(() => {
+    setParallels(result.parallels.parallels);
+    
     const newSourceOptions = supportedScriptures[initialMode]
-        .filter(source => source !== 'Default (All Religious Texts)' && source !== 'Default (All Spiritual Texts)' && source !== 'Default (All Non-Religious Texts)' && source !== 'Default (All Texts)')
+        .filter(source => !source.toLowerCase().includes('default'))
         .map(source => ({ value: source, label: source }));
 
     setCurrentSourceOptions(newSourceOptions);
     setCurrentParallelSources([]);
-    setParallels(initialParallels?.parallels || []);
-  }, [initialMode, initialParallels]);
-
+  }, [result.verse.id, initialMode, result.parallels.parallels]);
 
   const handleSearchParallels = () => {
-     startTransition(async () => {
-        const sourcesToFetch = currentParallelSources.length > 0 ? currentParallelSources : undefined;
-        const { parallels: newParallels, error } = await findParallelsAction(verse.text, verse.tradition, initialMode, sourcesToFetch);
-
-        if (error) {
-            toast({
-                variant: 'destructive',
-                title: 'Error refreshing parallels',
-                description: error,
-            });
-        } else {
-            setParallels(newParallels || []);
-        }
-    });
+     fetchParallels(currentParallelSources.length > 0 ? currentParallelSources : undefined);
   }
+  
+  const isPending = isFetchingParallels;
 
   return (
     <>
@@ -83,29 +84,38 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
                 <CardTitle className="font-headline text-2xl">AI Analysis</CardTitle>
               </CardHeader>
               <CardContent>
-                <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
-                  <AccordionItem value="item-1">
-                    <AccordionTrigger className="text-lg font-semibold text-left hover:no-underline">Verse Meaning & Context</AccordionTrigger>
-                    <AccordionContent className="text-base leading-relaxed pt-2 prose prose-sm max-w-none">
-                      {analysis.analysis}
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-2">
-                    <AccordionTrigger className="text-lg font-semibold text-left hover:no-underline">Key Insights & Lessons</AccordionTrigger>
-                    <AccordionContent className="text-base leading-relaxed pt-2 prose prose-sm max-w-none">
-                      {analysis.insights}
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-3">
-                    <AccordionTrigger className="text-lg font-semibold text-left hover:no-underline flex items-center gap-2">
-                        <Brain className="h-5 w-5" />
-                        Philosophical Reflection
-                    </AccordionTrigger>
-                    <AccordionContent className="text-base leading-relaxed pt-2 prose prose-sm max-w-none">
-                      {analysis.reflection}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                {!analysis ? (
+                     <div className="space-y-4">
+                        <Skeleton className="h-8 w-3/4" />
+                        <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-8 w-3/4" />
+                        <Skeleton className="h-20 w-full" />
+                    </div>
+                ) : (
+                    <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+                    <AccordionItem value="item-1">
+                        <AccordionTrigger className="text-lg font-semibold text-left hover:no-underline">Verse Meaning & Context</AccordionTrigger>
+                        <AccordionContent className="text-base leading-relaxed pt-2 prose prose-sm max-w-none">
+                        {analysis.analysis}
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-2">
+                        <AccordionTrigger className="text-lg font-semibold text-left hover:no-underline">Key Insights & Lessons</AccordionTrigger>
+                        <AccordionContent className="text-base leading-relaxed pt-2 prose prose-sm max-w-none">
+                        {analysis.insights}
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-3">
+                        <AccordionTrigger className="text-lg font-semibold text-left hover:no-underline flex items-center gap-2">
+                            <Brain className="h-5 w-5" />
+                            Philosophical Reflection
+                        </AccordionTrigger>
+                        <AccordionContent className="text-base leading-relaxed pt-2 prose prose-sm max-w-none">
+                        {analysis.reflection}
+                        </AccordionContent>
+                    </AccordionItem>
+                    </Accordion>
+                )}
               </CardContent>
             </Card>
             <Card>
@@ -121,7 +131,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
                           options={currentSourceOptions}
                           onValueChange={setCurrentParallelSources}
                           defaultValue={currentParallelSources}
-                          placeholder={`Search in specific ${initialMode} texts...`}
+                          placeholder={`Filter by specific ${initialMode} texts...`}
                           className="w-full"
                           disabled={isPending}
                       />
@@ -132,7 +142,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
                    </div>
               </CardHeader>
               <CardContent>
-                {isPending ? (
+                {isFetchingParallels ? (
                     <div className="flex items-center justify-center h-40">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
@@ -143,7 +153,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
                         <BookText className="h-5 w-5 mt-1 text-accent-foreground flex-shrink-0" />
                         <p className="text-base flex-1">{parallel}</p>
                         </li>
-                    )) : <p className='text-muted-foreground'>No parallels found for this filter. Try a broader search.</p>}
+                    )) : <p className='text-muted-foreground'>No parallels found. Try broadening your search.</p>}
                     </ul>
                 )}
               </CardContent>

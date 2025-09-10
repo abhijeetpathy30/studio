@@ -11,17 +11,20 @@ export type Verse = z.infer<typeof VerseSchema> & {
   id: string;
 };
 
-const AnalysisSchema = z.object({
+export const AnalysisSchema = z.object({
   analysis: z.string().describe('The analysis of the verse meaning and context.'),
   insights: z.string().describe('Key insights and lessons extracted from the verse.'),
   reflection: z.string().describe('A non-religious, secular, or philosophical reflection on the verse\'s themes and ideas.'),
-});
+}).nullable();
+export type Analysis = z.infer<typeof AnalysisSchema>;
 
-const ParallelsSchema = z.object({
+export const ParallelsSchema = z.object({
   parallels: z
     .array(z.string())
     .describe('Similar verses or teachings from other traditions.'),
-});
+}).nullable();
+export type Parallels = z.infer<typeof ParallelsSchema>;
+
 
 export const SearchModeSchema = z.enum(['Religious', 'Spiritual', 'Non-Religious', 'Universalist']);
 export type SearchMode = z.infer<typeof SearchModeSchema>;
@@ -35,8 +38,8 @@ export type PerformSearchInput = z.infer<typeof PerformSearchInputSchema>;
 
 export const PerformSearchOutputSchema = z.object({
     verse: VerseSchema.nullable(),
-    analysis: AnalysisSchema.nullable(),
-    parallels: ParallelsSchema.nullable(),
+    analysis: AnalysisSchema,
+    parallels: ParallelsSchema,
 });
 export type PerformSearchOutput = z.infer<typeof PerformSearchOutputSchema>;
 
@@ -66,7 +69,7 @@ export type FindSpecificParallelsOutput = z.infer<
 
 export type SearchResult = {
   verse: Verse;
-  analysis: z.infer<typeof AnalysisSchema>;
-  parallels: z.infer<typeof ParallelsSchema>;
+  analysis: Analysis;
+  parallels: Parallels;
   initialMode: SearchMode;
 };

@@ -1,88 +1,112 @@
 
 'use server';
 /**
- * @fileOverview A comprehensive flow to search for a verse and get a full analysis in one call.
+ * @fileOverview A flow for performing a comprehensive search for a verse, its analysis, and parallels.
  *
- * - performSearch - Finds a verse, analyzes it, and finds parallels.
+ * - performSearch - A function that returns a verse, its analysis, and parallels.
  */
 
 import {ai} from '@/ai/genkit';
+import {z} from 'genkit';
 import {
   PerformSearchInput,
   PerformSearchInputSchema,
   PerformSearchOutput,
   PerformSearchOutputSchema,
+  VerseSchema,
 } from '@/lib/types';
 
+const AnalysisSchema = z.object({
+  analysis: z
+    .string()
+    .describe('The analysis of the verse meaning and context.'),
+  insights: z
+    .string()
+    .describe('Key insights and lessons extracted from the verse.'),
+  reflection: z
+    .string()
+    .describe(
+      "A non-religious, secular, or philosophical reflection on the verse's themes and ideas."
+    ),
+});
 
+const ParallelsSchema = z.object({
+  parallels: z
+    .array(z.string())
+    .describe('Similar verses or teachings from other traditions.'),
+});
+
+const FindVerseOutputSchema = z.object({
+  verse: VerseSchema.nullable(),
+});
+
+export async function performSearch(
+  input: PerformSearchInput
+): Promise<PerformSearchOutput> {
+  return performSearchFlow(input);
+}
+
+// Define prompts for each mode
 const religiousPrompt = ai.definePrompt({
-  name: 'performReligiousSearchPrompt',
+  name: 'findReligiousVersePrompt',
   input: {schema: PerformSearchInputSchema},
-  output: {schema: PerformSearchOutputSchema},
-  prompt: `You are an expert theological research assistant. Your goal is to perform a comprehensive analysis based on a user's query in a single pass, with a focus on **Religious** texts.
-
-    **CRITICAL REQUIREMENT:**
-    1.  **Verse Retrieval**: You **MUST** find the single best verse matching the user's topic "{{query}}" from a sacred scripture or primary theological writing (e.g., Bible, Qur'an, Vedas, Talmud, Guru Granth Sahib).
-    2.  If a verse is found, and only if a verse is found:
-        *   **Verse Analysis**: Provide a clear analysis of its meaning within its original religious context, a list of key insights, and a secular reflection.
-        *   **Cross-Tradition Parallels**: Find and list several similar verses or teachings from *other religious* traditions only. Do not include spiritual or non-religious texts. Each parallel MUST be a single string containing both the quote and its full reference.
-
-    Accuracy is paramount. Do not invent verses.
+  output: {schema: FindVerseOutputSchema},
+  prompt: `You are an expert theological research assistant. Find the single best verse for the user's topic from a **Religious** text (e.g., Bible, Qur'an, Vedas, Talmud). Return only the verse, source, and tradition. Do not invent verses.
     **Topic**: {{{query}}}
     `,
 });
 
 const spiritualPrompt = ai.definePrompt({
-  name: 'performSpiritualSearchPrompt',
+  name: 'findSpiritualVersePrompt',
   input: {schema: PerformSearchInputSchema},
-  output: {schema: PerformSearchOutputSchema},
-  prompt: `You are an expert philosophical and spiritual research assistant. Your goal is to perform a comprehensive analysis based on a user's query in a single pass, with a focus on **Spiritual but not strictly religious** texts.
-
-    **CRITICAL REQUIREMENT:**
-    1.  **Verse Retrieval**: You **MUST** find the single best quote/passage matching the user's topic "{{query}}" from mystical, meditative, or reflective texts (e.g., Rumi's poetry, Spinoza's Ethics, Buddhist sutras, Tao Te Ching, works of Kabir, Stoic philosophy). Avoid texts from institutionalized, dogmatic religion unless they have a strong mystical or universally spiritual component.
-    2.  If a passage is found, and only if a passage is found:
-        *   **Verse Analysis**: Provide a clear analysis of its meaning, a list of key insights, and a secular/philosophical reflection.
-        *   **Cross-Tradition Parallels**: Find and list several similar passages from *other spiritual* traditions only. Do not include strictly religious or non-religious texts. Each parallel MUST be a single string containing both the quote and its full reference.
-
-    Accuracy is paramount. Do not invent verses.
+  output: {schema: FindVerseOutputSchema},
+  prompt: `You are an expert philosophical research assistant. Find the single best quote for the user's topic from a **Spiritual** text (e.g., Rumi, Tao Te Ching, Stoics). Return only the quote, source, and tradition. Do not invent passages.
     **Topic**: {{{query}}}
     `,
 });
 
 const nonReligiousPrompt = ai.definePrompt({
-  name: 'performNonReligiousSearchPrompt',
+  name: 'findNonReligiousVersePrompt',
   input: {schema: PerformSearchInputSchema},
-  output: {schema: PerformSearchOutputSchema},
-  prompt: `You are an expert philosophical and secular research assistant. Your goal is to perform a comprehensive analysis based on a user's query in a single pass, with a focus on **Non-Religious** texts.
-
-    **CRITICAL REQUIREMENT:**
-    1.  **Verse Retrieval**: You **MUST** find the single best quote/passage matching the user's topic "{{query}}" from philosophical treatises, scientific works, or humanist writings (e.g., Aristotle, Plato, Bertrand Russell, Sartre, Camus, Kant). Do not use any religious or sacred scriptures.
-    2.  If a passage is found, and only if a passage is found:
-        *   **Verse Analysis**: Provide a clear analysis of its meaning within its philosophical context, a list of key insights, and a reflection on its ideas.
-        *   **Cross-Tradition Parallels**: Find and list several similar passages from other *non-religious* philosophical traditions only. Do not include religious or spiritual texts. Each parallel MUST be a single string containing both the quote and its full reference.
-
-    Accuracy is paramount. Do not invent passages.
+  output: {schema: FindVerseOutputSchema},
+  prompt: `You are an expert philosophical research assistant. Find the single best quote for the user's topic from a **Non-Religious** text (e.g., Aristotle, Kant, Russell). Return only the passage, source, and tradition. Do not invent passages.
     **Topic**: {{{query}}}
     `,
 });
 
 const universalistPrompt = ai.definePrompt({
-  name: 'performUniversalistSearchPrompt',
+  name: 'findUniversalistVersePrompt',
   input: {schema: PerformSearchInputSchema},
-  output: {schema: PerformSearchOutputSchema},
-  prompt: `You are an expert research assistant specializing in comparative philosophy and religion. Your goal is to perform a comprehensive analysis based on a user's query, drawing from all available texts (religious, spiritual, and non-religious).
-
-    **CRITICAL REQUIREMENT:**
-    1.  **Verse Retrieval**: You **MUST** find the single best quote/passage matching the user's topic "{{query}}" from the vast library of human wisdom, regardless of its origin.
-    2.  If a passage is found, and only if a passage is found:
-        *   **Verse Aget-random-fact.tsnalysis**: Provide a clear analysis of its meaning within its original context, a list of key insights, and a universal, philosophical reflection accessible to all.
-        *   **Cross-Tradition Parallels**: Find and list several similar passages from a diverse range of *other* traditions (religious, spiritual, and non-religious). Each parallel MUST be a single string containing both the quote and its full reference.
-
-    Accuracy is paramount. Do not invent passages.
+  output: {schema: FindVerseOutputSchema},
+  prompt: `You are an expert in comparative philosophy. Find the single best quote for the user's topic from **any** text (religious, spiritual, or non-religious). Return only the passage, source, and tradition. Do not invent passages.
     **Topic**: {{{query}}}
     `,
 });
 
+const analyzePrompt = ai.definePrompt({
+  name: 'analyzeVerseMeaningPrompt',
+  input: {schema: z.object({verse: z.string()})},
+  output: {schema: AnalysisSchema},
+  prompt: `You are a religious and philosophical scholar. For the verse, provide:
+  1.  A clear analysis of its meaning.
+  2.  A list of key insights.
+  3.  A non-religious/secular reflection on its universal themes.
+  Verse: {{{verse}}}
+  `,
+});
+
+const findParallelsPrompt = ai.definePrompt({
+  name: 'findCrossTraditionParallelsPrompt',
+  input: {schema: z.object({verse: z.string(), tradition: z.string()})},
+  output: {schema: ParallelsSchema},
+  prompt: `Find similar verses or teachings from other religious and philosophical traditions for the following verse.
+
+Verse: {{{verse}}}
+Tradition: {{{tradition}}}
+
+Output the verses in a bulleted list.
+`,
+});
 
 const performSearchFlow = ai.defineFlow(
   {
@@ -91,30 +115,41 @@ const performSearchFlow = ai.defineFlow(
     outputSchema: PerformSearchOutputSchema,
   },
   async input => {
-    let activePrompt;
+    let findVersePrompt;
     switch (input.mode) {
       case 'Spiritual':
-        activePrompt = spiritualPrompt;
+        findVersePrompt = spiritualPrompt;
         break;
       case 'Non-Religious':
-        activePrompt = nonReligiousPrompt;
+        findVersePrompt = nonReligiousPrompt;
         break;
       case 'Universalist':
-        activePrompt = universalistPrompt;
+        findVersePrompt = universalistPrompt;
         break;
       case 'Religious':
       default:
-        activePrompt = religiousPrompt;
+        findVersePrompt = religiousPrompt;
         break;
     }
 
-    const {output} = await activePrompt(input);
-    return output!;
+    // First, find the verse.
+    const {output: findVerseOutput} = await findVersePrompt(input);
+    if (!findVerseOutput?.verse) {
+      return {verse: null, analysis: null, parallels: null};
+    }
+
+    const {verse} = findVerseOutput;
+
+    // Now, run analysis and parallels searches in parallel.
+    const [analysisResult, parallelsResult] = await Promise.all([
+      analyzePrompt({verse: verse.text}),
+      findParallelsPrompt({verse: verse.text, tradition: verse.tradition}),
+    ]);
+    
+    return {
+      verse,
+      analysis: analysisResult.output,
+      parallels: parallelsResult.output,
+    };
   }
 );
-
-export async function performSearch(
-  input: PerformSearchInput
-): Promise<PerformSearchOutput> {
-  return performSearchFlow(input);
-}

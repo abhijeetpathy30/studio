@@ -12,7 +12,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Lightbulb } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
-
 export default function Home() {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [isPending, startTransition] = useTransition();
