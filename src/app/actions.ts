@@ -83,20 +83,20 @@ const FindParallelsSchema = z.object({
   verse: z.string(),
   tradition: z.string(),
   targetMode: z.enum(['Religious', 'Spiritual', 'Non-Religious', 'Universalist']),
-  targetSource: z.string().optional(),
+  targetSources: z.array(z.string()).optional(),
 });
 
 export async function findParallelsAction(
   verse: string,
   tradition: string,
   targetMode: SearchMode,
-  targetSource?: string,
+  targetSources?: string[],
 ): Promise<{ parallels: string[] | null; error: string | null }> {
   const validatedFields = FindParallelsSchema.safeParse({
     verse,
     tradition,
     targetMode,
-    targetSource,
+    targetSources,
   });
 
   if (!validatedFields.success) {

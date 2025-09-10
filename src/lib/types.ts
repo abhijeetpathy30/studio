@@ -48,7 +48,7 @@ export const FindSpecificParallelsInputSchema = z.object({
   targetMode: SearchModeSchema.describe(
     'The target worldview to find parallels in.'
   ),
-  targetSource: z.string().optional().describe('An optional specific text within the target worldview to find parallels in.'),
+  targetSources: z.array(z.string()).optional().describe('An optional list of specific texts within the target worldview to find parallels in.'),
 });
 export type FindSpecificParallelsInput = z.infer<
   typeof FindSpecificParallelsInputSchema

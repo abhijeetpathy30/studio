@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { SearchResult, SearchMode } from '@/lib/types';
-import { ArrowLeft, BookText, Sparkles, Brain, Loader2 } from 'lucide-react';
+import { ArrowLeft, BookText, Sparkles, Brain, Loader2, RefreshCw } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { findParallelsAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
+import { MultiSelect, type Option } from '@/components/ui/multi-select';
 
 interface SearchResultsProps {
     result: SearchResult;
@@ -21,22 +22,25 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
   const { verse, analysis, parallels: initialParallels, initialMode } = result;
   const [parallels, setParallels] = useState(initialParallels?.parallels || []);
   const [currentParallelMode, setCurrentParallelMode] = useState<SearchMode>(initialMode);
-  const [currentParallelSource, setCurrentParallelSource] = useState<string>('Default');
-  const [currentSourceOptions, setCurrentSourceOptions] = useState<string[]>(supportedScriptures[initialMode]);
+  const [currentParallelSources, setCurrentParallelSources] = useState<string[]>([]);
+  const [currentSourceOptions, setCurrentSourceOptions] = useState<Option[]>([]);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
   useEffect(() => {
-    const newSourceOptions = supportedScriptures[currentParallelMode];
+    const newSourceOptions = supportedScriptures[currentParallelMode]
+        .filter(source => source !== 'Default (All Texts)')
+        .map(source => ({ value: source, label: source }));
+
     setCurrentSourceOptions(newSourceOptions);
-    setCurrentParallelSource('Default');
+    setCurrentParallelSources([]);
   }, [currentParallelMode]);
 
 
-  const handleSearchParallels = (mode: SearchMode, source: string) => {
+  const handleSearchParallels = () => {
      startTransition(async () => {
-        const sourceToFetch = source === 'Default' ? undefined : source;
-        const { parallels: newParallels, error } = await findParallelsAction(verse.text, verse.tradition, mode, sourceToFetch);
+        const sourcesToFetch = currentParallelSources.length > 0 ? currentParallelSources : undefined;
+        const { parallels: newParallels, error } = await findParallelsAction(verse.text, verse.tradition, currentParallelMode, sourcesToFetch);
 
         if (error) {
             toast({
@@ -53,15 +57,19 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
   const handleModeChange = (newMode: SearchMode) => {
     setCurrentParallelMode(newMode);
     // The useEffect will trigger the source options to update and reset the source dropdown.
-    // Then we search with the new mode and the default source.
-    handleSearchParallels(newMode, 'Default');
+    startTransition(async () => {
+        const { parallels: newParallels, error } = await findParallelsAction(verse.text, verse.tradition, newMode, undefined);
+        if (error) {
+            toast({
+                variant: 'destructive',
+                title: 'Error refreshing parallels',
+                description: error,
+            });
+        } else {
+            setParallels(newParallels || []);
+        }
+    });
   };
-
-  const handleSourceChange = (newSource: string) => {
-      setCurrentParallelSource(newSource);
-      handleSearchParallels(currentParallelMode, newSource);
-  }
-
 
   return (
     <>
@@ -126,30 +134,34 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
                         <CardTitle className="font-headline text-2xl">Cross-Tradition Parallels</CardTitle>
                       </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row items-center gap-2 mt-4">
-                      <Select onValueChange={(value) => handleModeChange(value as SearchMode)} value={currentParallelMode} disabled={isPending}>
-                        <SelectTrigger className="w-full h-9 text-sm">
-                          <SelectValue placeholder="Select a worldview" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Universalist">Universalist</SelectItem>
-                          <SelectItem value="Spiritual">Spiritual</SelectItem>
-                          <SelectItem value="Religious">Religious</SelectItem>
-                          <SelectItem value="Non-Religious">Non-Religious</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Select onValueChange={handleSourceChange} value={currentParallelSource} disabled={isPending}>
-                        <SelectTrigger className="w-full h-9 text-sm">
-                          <SelectValue placeholder="Select a source" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {currentSourceOptions.map(source => (
-                              <SelectItem key={source} value={source}>
-                                {source.startsWith('Default') ? source : source}
-                              </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  <div className="flex flex-col gap-2 mt-4">
+                     <div className='flex items-center gap-2'>
+                        <Select onValueChange={(value) => handleModeChange(value as SearchMode)} value={currentParallelMode} disabled={isPending}>
+                          <SelectTrigger className="w-full h-9 text-sm">
+                            <SelectValue placeholder="Select a worldview" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Universalist">Universalist</SelectItem>
+                            <SelectItem value="Spiritual">Spiritual</SelectItem>
+                            <SelectItem value="Religious">Religious</SelectItem>
+                            <SelectItem value="Non-Religious">Non-Religious</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                     <div className='flex items-center gap-2'>
+                        <MultiSelect
+                            options={currentSourceOptions}
+                            onValueChange={setCurrentParallelSources}
+                            defaultValue={currentParallelSources}
+                            placeholder="Search in specific texts..."
+                            className="w-full"
+                            disabled={isPending}
+                        />
+                         <Button size="icon" onClick={handleSearchParallels} disabled={isPending}>
+                            <RefreshCw className="h-4 w-4" />
+                            <span className="sr-only">Refresh Parallels</span>
+                         </Button>
+                     </div>
                   </div>
               </CardHeader>
               <CardContent>
@@ -164,7 +176,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
                         <BookText className="h-5 w-5 mt-1 text-accent-foreground flex-shrink-0" />
                         <p className="text-base flex-1">{parallel}</p>
                         </li>
-                    )) : <p className='text-muted-foreground'>No parallels found for this worldview{currentParallelSource !== 'Default' ? ` in ${currentParallelSource}` : ''}.</p>}
+                    )) : <p className='text-muted-foreground'>No parallels found for this filter. Try a broader search.</p>}
                     </ul>
                 )}
               </CardContent>
