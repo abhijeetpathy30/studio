@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supportedScriptures } from '@/lib/data';
 import { Lightbulb, Linkedin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Card } from '@/components/ui/card';
 
 
 export default function Home() {
@@ -75,7 +76,7 @@ export default function Home() {
   
   return (
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <section className="text-center mb-12">
+        <section className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4 tracking-tight">
             The Wisdom Way
           </h1>
@@ -84,7 +85,9 @@ export default function Home() {
           </p>
         </section>
 
-        <VerseSearchForm ref={searchFormRef} onSearch={handleSearch} isLoading={isPending} />
+        <Card className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8 mb-12 shadow-md border-border/50">
+          <VerseSearchForm ref={searchFormRef} onSearch={handleSearch} isLoading={isPending} />
+        </Card>
 
         <div className="mt-12">
           {isPending ? (
