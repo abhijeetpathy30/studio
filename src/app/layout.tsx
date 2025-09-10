@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   verification: {
-    google: 'YOUR_GOOGLE_SITE_VERIFICATION_CODE',
+    google: 'googlef49983442997db7b',
   },
 };
 
