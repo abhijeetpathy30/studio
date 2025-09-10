@@ -8,7 +8,7 @@ import { Header } from '@/components/layout/Header';
 import { Linkedin } from 'lucide-react';
 
 const APP_NAME = "The wise way";
-const APP_DESCRIPTION = "Explore universal spiritual concepts across traditions.";
+const APP_DESCRIPTION = "Explore universal spiritual concepts and philosophical texts with AI-powered analysis and cross-tradition parallels.";
 
 export const metadata: Metadata = {
   applicationName: APP_NAME,
