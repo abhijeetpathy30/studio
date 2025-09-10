@@ -40,9 +40,32 @@ export const PerformSearchOutputSchema = z.object({
 });
 export type PerformSearchOutput = z.infer<typeof PerformSearchOutputSchema>;
 
+export const FindSpecificParallelsInputSchema = z.object({
+  verse: z.string().describe('The original verse to find parallels for.'),
+  tradition: z
+    .string()
+    .describe('The tradition the original verse belongs to.'),
+  targetMode: SearchModeSchema.describe(
+    'The target worldview to find parallels in.'
+  ),
+});
+export type FindSpecificParallelsInput = z.infer<
+  typeof FindSpecificParallelsInputSchema
+>;
+
+export const FindSpecificParallelsOutputSchema = z.object({
+  parallels: z
+    .array(z.string())
+    .describe('Similar verses or teachings from the target tradition type.'),
+});
+export type FindSpecificParallelsOutput = z.infer<
+  typeof FindSpecificParallelsOutputSchema
+>;
+
 
 export type SearchResult = {
   verse: Verse;
   analysis: z.infer<typeof AnalysisSchema>;
   parallels: z.infer<typeof ParallelsSchema>;
+  initialMode: SearchMode;
 };

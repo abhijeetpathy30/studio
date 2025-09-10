@@ -1,11 +1,15 @@
 
 'use client';
 
+import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import type { SearchResult } from '@/lib/types';
-import { ArrowLeft, BookText, Sparkles, Brain } from 'lucide-react';
+import type { SearchResult, SearchMode } from '@/lib/types';
+import { ArrowLeft, BookText, Sparkles, Brain, Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { findParallelsAction } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
 
 interface SearchResultsProps {
     result: SearchResult;
@@ -13,7 +17,29 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({ result, onClear }: SearchResultsProps) {
-  const { verse, analysis, parallels } = result;
+  const { verse, analysis, parallels: initialParallels, initialMode } = result;
+  const [parallels, setParallels] = useState(initialParallels.parallels);
+  const [currentParallelMode, setCurrentParallelMode] = useState<SearchMode>(initialMode);
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+
+  const handleModeChange = (newMode: SearchMode) => {
+    setCurrentParallelMode(newMode);
+    startTransition(async () => {
+        const { parallels: newParallels, error } = await findParallelsAction(verse.text, verse.tradition, newMode);
+
+        if (error) {
+            toast({
+                variant: 'destructive',
+                title: 'Error refreshing parallels',
+                description: error,
+            });
+        } else {
+            setParallels(newParallels || []);
+        }
+    });
+  };
+
 
   return (
     <>
@@ -71,19 +97,40 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="flex flex-row items-center gap-3">
-                <BookText className="h-6 w-6 text-primary" />
-                <CardTitle className="font-headline text-2xl">Cross-Tradition Parallels</CardTitle>
+              <CardHeader>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <BookText className="h-6 w-6 text-primary" />
+                        <CardTitle className="font-headline text-2xl">Cross-Tradition Parallels</CardTitle>
+                      </div>
+                      <Select onValueChange={(value) => handleModeChange(value as SearchMode)} value={currentParallelMode} disabled={isPending}>
+                        <SelectTrigger className="w-full sm:w-[180px] h-9 text-sm">
+                          <SelectValue placeholder="Select a worldview" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Universalist">Universalist</SelectItem>
+                          <SelectItem value="Spiritual">Spiritual</SelectItem>
+                          <SelectItem value="Religious">Religious</SelectItem>
+                          <SelectItem value="Non-Religious">Non-Religious</SelectItem>
+                        </SelectContent>
+                      </Select>
+                  </div>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-4">
-                  {parallels.parallels.length > 0 ? parallels.parallels.map((parallel, index) => (
-                    <li key={index} className="flex gap-3">
-                      <BookText className="h-5 w-5 mt-1 text-accent-foreground flex-shrink-0" />
-                      <p className="text-base flex-1">{parallel}</p>
-                    </li>
-                  )) : <p className='text-muted-foreground'>No parallels found by the AI.</p>}
-                </ul>
+                {isPending ? (
+                    <div className="flex items-center justify-center h-40">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                ) : (
+                    <ul className="space-y-4">
+                    {parallels.length > 0 ? parallels.map((parallel, index) => (
+                        <li key={index} className="flex gap-3">
+                        <BookText className="h-5 w-5 mt-1 text-accent-foreground flex-shrink-0" />
+                        <p className="text-base flex-1">{parallel}</p>
+                        </li>
+                    )) : <p className='text-muted-foreground'>No parallels found for this worldview.</p>}
+                    </ul>
+                )}
               </CardContent>
             </Card>
           </div>

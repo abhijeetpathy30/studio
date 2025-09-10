@@ -3,6 +3,7 @@
 import { performSearch } from '@/ai/flows/perform-search';
 import { transcribeAudio } from '@/ai/flows/transcribe-audio';
 import { getRandomFact } from '@/ai/flows/get-random-fact';
+import { findSpecificParallels } from '@/ai/flows/find-specific-parallels';
 import type { SearchResult, SearchMode } from '@/lib/types';
 import { z } from 'zod';
 import { supportedScriptures } from '@/lib/data';
@@ -44,6 +45,7 @@ export async function searchVerseAction(prevState: any, formData: FormData): Pro
             verse: { ...searchResult.verse, id: searchResult.verse.source }, // Use source as a temporary ID
             analysis: searchResult.analysis,
             parallels: searchResult.parallels,
+            initialMode: mode,
         };
 
         return { data: result, error: null };
@@ -82,4 +84,34 @@ export async function getRandomFactAction(): Promise<{ fact: string | null; erro
         // Return a default fact or an error message.
         return { fact: "The Golden Rule, 'Do unto others as you would have them do unto you,' appears in some form in nearly every major religion.", error: 'Could not fetch a new fact.' };
     }
+}
+
+const FindParallelsSchema = z.object({
+  verse: z.string(),
+  tradition: z.string(),
+  targetMode: z.enum(['Religious', 'Spiritual', 'Non-Religious', 'Universalist']),
+});
+
+export async function findParallelsAction(
+  verse: string,
+  tradition: string,
+  targetMode: SearchMode
+): Promise<{ parallels: string[] | null; error: string | null }> {
+  const validatedFields = FindParallelsSchema.safeParse({
+    verse,
+    tradition,
+    targetMode,
+  });
+
+  if (!validatedFields.success) {
+    return { parallels: null, error: 'Invalid input for finding parallels.' };
+  }
+
+  try {
+    const result = await findSpecificParallels(validatedFields.data);
+    return { parallels: result.parallels, error: null };
+  } catch (e) {
+    console.error('Error finding parallels:', e);
+    return { parallels: null, error: 'An error occurred while finding new parallels.' };
+  }
 }
