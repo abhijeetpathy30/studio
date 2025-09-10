@@ -26,6 +26,9 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  verification: {
+    google: 'YOUR_GOOGLE_SITE_VERIFICATION_CODE',
+  },
 };
 
 export default function RootLayout({
