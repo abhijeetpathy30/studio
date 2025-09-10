@@ -1,7 +1,2 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
-#
-# Allow all crawlers to access all content
 User-agent: *
-Disallow:
-
-Sitemap: https://studio-khaki-three.vercel.app/sitemap.xml
+Allow: /
