@@ -4,13 +4,8 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import type { SearchResult } from '@/lib/types';
-import { ArrowLeft, BookText, Sparkles, Brain, Share2, Copy, MessageSquare, Mail } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { SocialIcon } from 'react-social-icons';
-import { useEffect, useState } from 'react';
-
+import { ArrowLeft, BookText, Sparkles, Brain } from 'lucide-react';
 
 interface SearchResultsProps {
     result: SearchResult;
@@ -19,119 +14,14 @@ interface SearchResultsProps {
 
 export function SearchResults({ result, onClear }: SearchResultsProps) {
   const { verse, analysis, parallels } = result;
-  const { toast } = useToast();
-  const [canShare, setCanShare] = useState(false);
-
-  useEffect(() => {
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      setCanShare(true);
-    }
-  }, []);
-  
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-  const shareText = `Check out this piece of wisdom I found on The Wisdom Way: "${verse.text}" - ${verse.source}`;
-  const quotationText = `"${verse.text}" - ${verse.source}`;
-
-  const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-  const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`;
-  const linkedinShareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(`Wisdom from ${verse.tradition}`)}&summary=${encodeURIComponent(shareText)}`;
-  const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-  const emailShareUrl = `mailto:?subject=${encodeURIComponent(`A Piece of Wisdom from The Wisdom Way`)}&body=${encodeURIComponent(shareText)}`;
-  const smsShareUrl = `sms:?body=${encodeURIComponent(shareText)}`;
-
-  const handleCopyText = async () => {
-    try {
-      await navigator.clipboard.writeText(quotationText);
-      toast({
-        title: 'Text Copied',
-        description: 'The quotation has been copied to your clipboard.',
-      });
-    } catch (error) {
-       toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: 'Could not copy the text.',
-      });
-    }
-  };
-  
-  const handleNativeShare = async () => {
-    const shareData = {
-      title: 'A Moment of Wisdom',
-      text: quotationText,
-      url: shareUrl,
-    };
-
-    try {
-      await navigator.share(shareData);
-    } catch (error: any) {
-      if (error.name !== 'AbortError') {
-        console.error('Error sharing:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: 'Could not share the verse.',
-        });
-      }
-    }
-  };
-
 
   return (
     <div className="space-y-8 animate-in fade-in-50">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center">
         <Button variant="outline" size="sm" onClick={onClear}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           New Search
         </Button>
-         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-                {canShare && (
-                    <>
-                      <DropdownMenuItem onClick={handleNativeShare}>
-                          <Share2 className="mr-2 h-4 w-4" />
-                          <span>Share via...</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                )}
-                 <DropdownMenuItem onClick={() => window.open(twitterShareUrl, '_blank')}>
-                    <SocialIcon network="x" style={{ height: 20, width: 20 }} className="mr-2" />
-                    <span>Share on X</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.open(facebookShareUrl, '_blank')}>
-                    <SocialIcon network="facebook" style={{ height: 20, width: 20 }} className="mr-2" />
-                    <span>Share on Facebook</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.open(linkedinShareUrl, '_blank')}>
-                    <SocialIcon network="linkedin" style={{ height: 20, width: 20 }} className="mr-2" />
-                    <span>Share on LinkedIn</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.open(whatsappShareUrl, '_blank')}>
-                    <SocialIcon network="whatsapp" style={{ height: 20, width: 20 }} className="mr-2" />
-                    <span>Share on WhatsApp</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                 <DropdownMenuItem onClick={() => window.location.href = emailShareUrl}>
-                    <Mail className="mr-2 h-4 w-4" />
-                    <span>Share via Email</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.location.href = smsShareUrl}>
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    <span>Share via Messages</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleCopyText}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    <span>Copy Text</span>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       <Card className="shadow-lg border-primary/20">
