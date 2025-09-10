@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -10,6 +10,7 @@ import { ArrowLeft, BookText, Sparkles, Brain, Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { findParallelsAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+import { supportedScriptures } from '@/lib/data';
 
 interface SearchResultsProps {
     result: SearchResult;
@@ -20,13 +21,22 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
   const { verse, analysis, parallels: initialParallels, initialMode } = result;
   const [parallels, setParallels] = useState(initialParallels.parallels);
   const [currentParallelMode, setCurrentParallelMode] = useState<SearchMode>(initialMode);
+  const [currentParallelSource, setCurrentParallelSource] = useState<string>('Default');
+  const [currentSourceOptions, setCurrentSourceOptions] = useState<string[]>(supportedScriptures[initialMode]);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
-  const handleModeChange = (newMode: SearchMode) => {
-    setCurrentParallelMode(newMode);
-    startTransition(async () => {
-        const { parallels: newParallels, error } = await findParallelsAction(verse.text, verse.tradition, newMode);
+  useEffect(() => {
+    const newSourceOptions = supportedScriptures[currentParallelMode];
+    setCurrentSourceOptions(newSourceOptions);
+    setCurrentParallelSource('Default');
+  }, [currentParallelMode]);
+
+
+  const handleSearchParallels = (mode: SearchMode, source: string) => {
+     startTransition(async () => {
+        const sourceToFetch = source === 'Default' ? undefined : source;
+        const { parallels: newParallels, error } = await findParallelsAction(verse.text, verse.tradition, mode, sourceToFetch);
 
         if (error) {
             toast({
@@ -38,7 +48,19 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
             setParallels(newParallels || []);
         }
     });
+  }
+
+  const handleModeChange = (newMode: SearchMode) => {
+    setCurrentParallelMode(newMode);
+    // The useEffect will trigger the source options to update and reset the source dropdown.
+    // Then we search with the new mode and the default source.
+    handleSearchParallels(newMode, 'Default');
   };
+
+  const handleSourceChange = (newSource: string) => {
+      setCurrentParallelSource(newSource);
+      handleSearchParallels(currentParallelMode, newSource);
+  }
 
 
   return (
@@ -103,8 +125,10 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
                         <BookText className="h-6 w-6 text-primary" />
                         <CardTitle className="font-headline text-2xl">Cross-Tradition Parallels</CardTitle>
                       </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center gap-2 mt-4">
                       <Select onValueChange={(value) => handleModeChange(value as SearchMode)} value={currentParallelMode} disabled={isPending}>
-                        <SelectTrigger className="w-full sm:w-[180px] h-9 text-sm">
+                        <SelectTrigger className="w-full h-9 text-sm">
                           <SelectValue placeholder="Select a worldview" />
                         </SelectTrigger>
                         <SelectContent>
@@ -112,6 +136,18 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
                           <SelectItem value="Spiritual">Spiritual</SelectItem>
                           <SelectItem value="Religious">Religious</SelectItem>
                           <SelectItem value="Non-Religious">Non-Religious</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select onValueChange={handleSourceChange} value={currentParallelSource} disabled={isPending}>
+                        <SelectTrigger className="w-full h-9 text-sm">
+                          <SelectValue placeholder="Select a source" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {currentSourceOptions.map(source => (
+                              <SelectItem key={source} value={source}>
+                                {source.startsWith('Default') ? source : source}
+                              </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                   </div>
@@ -128,7 +164,7 @@ export function SearchResults({ result, onClear }: SearchResultsProps) {
                         <BookText className="h-5 w-5 mt-1 text-accent-foreground flex-shrink-0" />
                         <p className="text-base flex-1">{parallel}</p>
                         </li>
-                    )) : <p className='text-muted-foreground'>No parallels found for this worldview.</p>}
+                    )) : <p className='text-muted-foreground'>No parallels found for this worldview{currentParallelSource !== 'Default' ? ` in ${currentParallelSource}` : ''}.</p>}
                     </ul>
                 )}
               </CardContent>

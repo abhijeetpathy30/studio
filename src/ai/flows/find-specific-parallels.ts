@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow for finding cross-tradition parallels for a given verse based on a specific mode.
@@ -32,6 +33,12 @@ For the given verse from a specific tradition, find several parallel teachings, 
 - If 'targetMode' is Universalist, draw from all categories.
 
 Do not include parallels from the verse's original tradition. Each parallel MUST be a single string containing both the quote and its full reference.
+
+{{#if targetSource}}
+**CRITICAL**: You MUST find parallels from the specified text: "{{targetSource}}". If no parallels can be found in that specific text, return an empty array. Do not search in other texts.
+{{else}}
+You may find parallels from any relevant text within the target worldview.
+{{/if}}
 
 Original Verse: "{{verse}}"
 Original Tradition: "{{tradition}}"

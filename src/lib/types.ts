@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export const VerseSchema = z.object({
@@ -27,7 +28,6 @@ export type SearchMode = z.infer<typeof SearchModeSchema>;
 
 export const PerformSearchInputSchema = z.object({
   query: z.string().describe("The user's search query or topic."),
-  source: z.string().optional().describe('The primary scripture to search within. If not provided, search all scriptures.'),
   mode: SearchModeSchema.describe('The philosophical mode for the search.'),
 });
 export type PerformSearchInput = z.infer<typeof PerformSearchInputSchema>;
@@ -48,6 +48,7 @@ export const FindSpecificParallelsInputSchema = z.object({
   targetMode: SearchModeSchema.describe(
     'The target worldview to find parallels in.'
   ),
+  targetSource: z.string().optional().describe('An optional specific text within the target worldview to find parallels in.'),
 });
 export type FindSpecificParallelsInput = z.infer<
   typeof FindSpecificParallelsInputSchema

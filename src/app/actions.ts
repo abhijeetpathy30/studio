@@ -7,18 +7,15 @@ import { getRandomFact } from '@/ai/flows/get-random-fact';
 import { findSpecificParallels } from '@/ai/flows/find-specific-parallels';
 import type { SearchResult, SearchMode } from '@/lib/types';
 import { z } from 'zod';
-import { supportedScriptures } from '@/lib/data';
 
 const SearchSchema = z.object({
     query: z.string().min(3, 'Search query must be at least 3 characters long.'),
-    source: z.string(),
     mode: z.enum(['Religious', 'Spiritual', 'Non-Religious', 'Universalist']),
 });
 
 export async function searchVerseAction(prevState: any, formData: FormData): Promise<{data: SearchResult | null, error: string | null}> {
     const validatedFields = SearchSchema.safeParse({
         query: formData.get('query'),
-        source: formData.get('source'),
         mode: formData.get('mode'),
     });
 
@@ -28,15 +25,10 @@ export async function searchVerseAction(prevState: any, formData: FormData): Pro
         return { data: null, error: errorMessage };
     }
 
-    const { query, source, mode } = validatedFields.data;
+    const { query, mode } = validatedFields.data;
     
-    const defaultSourceForMode = supportedScriptures[mode][0];
-
     try {
-        // If the selected source is the "Default" option for that mode, pass `undefined`,
-        // otherwise, pass the selected source.
-        const searchSource = source === defaultSourceForMode ? undefined : source;
-        const searchResult = await performSearch({ query, source: searchSource, mode });
+        const searchResult = await performSearch({ query, mode });
 
         if (!searchResult?.verse || !searchResult?.analysis || !searchResult?.parallels) {
             return { data: null, error: 'No verse found matching your query. Please try another search or explore themes.' };
@@ -91,17 +83,20 @@ const FindParallelsSchema = z.object({
   verse: z.string(),
   tradition: z.string(),
   targetMode: z.enum(['Religious', 'Spiritual', 'Non-Religious', 'Universalist']),
+  targetSource: z.string().optional(),
 });
 
 export async function findParallelsAction(
   verse: string,
   tradition: string,
-  targetMode: SearchMode
+  targetMode: SearchMode,
+  targetSource?: string,
 ): Promise<{ parallels: string[] | null; error: string | null }> {
   const validatedFields = FindParallelsSchema.safeParse({
     verse,
     tradition,
     targetMode,
+    targetSource,
   });
 
   if (!validatedFields.success) {

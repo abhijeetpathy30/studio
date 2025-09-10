@@ -5,8 +5,6 @@ import { useState, useImperativeHandle, forwardRef, useRef, useTransition, useEf
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Loader2, Mic, MicOff, Book, Sparkles, User, Globe } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supportedScriptures } from '@/lib/data';
 import { transcribeAudioAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -15,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import type { SearchMode } from '@/lib/types';
 
 interface VerseSearchFormProps {
-  onSearch: (query: string, source: string, mode: SearchMode) => void;
+  onSearch: (query: string, mode: SearchMode) => void;
   isLoading: boolean;
 }
 
@@ -34,21 +32,12 @@ const modeDescriptions: Record<SearchMode, string> = {
 export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormProps>(({ onSearch, isLoading }, ref) => {
   const [query, setQuery] = useState('');
   const [mode, setMode] = useState<SearchMode>('Universalist');
-  const [currentScriptures, setCurrentScriptures] = useState(supportedScriptures.Universalist);
-  const [source, setSource] = useState(currentScriptures[0]);
   
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, startTranscriptionTransition] = useTransition();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
-
-  useEffect(() => {
-    const newScriptures = supportedScriptures[mode];
-    setCurrentScriptures(newScriptures);
-    setSource(newScriptures[0]);
-  }, [mode]);
-
 
   const handleMicClick = async () => {
     if (isRecording) {
@@ -85,7 +74,7 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
               }
 
               setQuery(text);
-              onSearch(text, source, mode);
+              onSearch(text, mode);
             };
           });
           
@@ -107,16 +96,13 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(query, source, mode);
+    onSearch(query, mode);
   };
   
   useImperativeHandle(ref, () => ({
     reset: () => {
       setQuery('');
       setMode('Universalist');
-      const defaultScriptures = supportedScriptures['Universalist'];
-      setCurrentScriptures(defaultScriptures);
-      setSource(defaultScriptures[0]);
     },
     setQuery: (newQuery: string) => setQuery(newQuery),
   }));
@@ -155,16 +141,6 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
           />
         </div>
         <div className="flex gap-2 w-full md:w-auto shrink-0">
-          <Select onValueChange={setSource} value={source} disabled={isBusy}>
-            <SelectTrigger className="w-full md:w-[240px] h-12 text-base">
-              <SelectValue placeholder="Select a source" />
-            </SelectTrigger>
-            <SelectContent>
-              {currentScriptures.map(scripture => (
-                <SelectItem key={scripture} value={scripture}>{scripture}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Button
             type="button"
             variant={isRecording ? 'destructive' : 'outline'}
@@ -178,7 +154,7 @@ export const VerseSearchForm = forwardRef<VerseSearchFormRef, VerseSearchFormPro
           </Button>
           <Button
             type="submit"
-            className="h-12 px-6"
+            className="h-12 px-6 flex-grow"
             disabled={isBusy}
           >
             {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Search'}

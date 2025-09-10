@@ -9,9 +9,7 @@ import { searchVerseAction, getRandomFactAction } from '@/app/actions';
 import type { SearchResult, SearchMode } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { supportedScriptures } from '@/lib/data';
-import { Lightbulb, Linkedin } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Lightbulb } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 
@@ -22,7 +20,7 @@ export default function Home() {
   const searchFormRef = useRef<VerseSearchFormRef>(null);
   const { toast } = useToast();
 
-  const handleSearch = (text: string, source: string, mode: SearchMode) => {
+  const handleSearch = (text: string, mode: SearchMode) => {
     if (!text || text.length < 3) {
        toast({
           variant: 'destructive',
@@ -45,7 +43,6 @@ export default function Home() {
       
       const formData = new FormData();
       formData.append('query', text);
-      formData.append('source', source);
       formData.append('mode', mode);
 
       const { data, error } = await searchVerseAction(null, formData);
@@ -70,8 +67,7 @@ export default function Home() {
 
   const handleThemeSelect = (theme: string) => {
     searchFormRef.current?.setQuery(theme);
-    // When exploring themes, default to 'Spiritual' mode for broader results
-    handleSearch(theme, supportedScriptures.Spiritual[0], 'Spiritual');
+    handleSearch(theme, 'Spiritual');
   };
   
   return (
