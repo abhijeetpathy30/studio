@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import { Header } from '@/components/layout/Header';
 import { Linkedin } from 'lucide-react';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const APP_NAME = "The wise way";
 const APP_DESCRIPTION = "Explore universal spiritual concepts and philosophical texts with AI-powered analysis and cross-tradition parallels.";
@@ -82,6 +83,7 @@ export default function RootLayout({
         </div>
           <Toaster />
           <Analytics />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>
